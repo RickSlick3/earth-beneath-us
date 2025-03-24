@@ -115,22 +115,26 @@ class LeafletMap {
             vis.updateVis();
         });
 
+        // handler here for updating the map, as you swipe around
+        // vis.theMap.on("moveend", function(){
+        //     vis.updateVis();
+        // });
+
     }
 
     updateVis() {
         let vis = this;
 
         //want to see how zoomed in you are? 
-        console.log(vis.map.getZoom()); //how zoomed am I?
+        console.log(vis.theMap.getZoom()); //how zoomed am I?
         //----- maybe you want to use the zoom level as a basis for changing the size of the points... ?
-        
 
         //redraw based on new zoom- need to recalculate on-screen position
         vis.Dots
             .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
             .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
-            .attr("fill", "steelblue")  //---- TO DO- color by magnitude 
-            .attr("r", 3) ; 
+            .attr("fill", d => vis.colorScale(d.mag))
+            .attr("r", d => d.mag);
     }
 
 
