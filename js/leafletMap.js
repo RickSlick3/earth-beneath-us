@@ -71,19 +71,19 @@ class LeafletMap {
         vis.Dots = vis.svg.selectAll('circle')
             .data(vis.data) 
             .join('circle')
-                .attr("fill", d => vis.colorScale(d.mag))  //---- TO DO- color by magnitude 
+                .attr("fill", d => vis.colorScale(d.mag)) // color dot by magnitude
                 .attr("stroke", "black")
-                //Leaflet has to take control of projecting points. 
-                //Here we are feeding the latitude and longitude coordinates to
-                //leaflet so that it can project them on the coordinates of the view. 
-                //the returned conversion produces an x and y point. 
-                //We have to select the the desired one using .x or .y
+                // Leaflet has to take control of projecting points. 
+                // Here we are feeding the latitude and longitude coordinates to
+                // leaflet so that it can project them on the coordinates of the view. 
+                // the returned conversion produces an x and y point. 
+                // We have to select the the desired one using .x or .y
                 .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
                 .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
-                .attr("r", rad)  // --- TO DO- want to make radius proportional to earthquake size? 
+                .attr("r", rad)  // radius proportional to zoom level
+                
                 .on('mouseover', function(event,d) { //function to add mouseover event
-                    // Bring this element to the front
-                    d3.select(this).raise();
+                    d3.select(this).raise(); // Bring this dot to the front
 
                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
@@ -94,8 +94,7 @@ class LeafletMap {
                     d3.select('#tooltip')
                         .style('opacity', 1)
                         .style('z-index', 1000000)
-                        // Format number with million and thousand separator
-                        .html(`<div class="tooltip-label">City: ${d.place}, </br> Magnitude ${d3.format(',')(d.mag)}</div>`);
+                        .html(`<div class="tooltip-label">City: ${d.place}, </br> Magnitude ${d3.format(',')(d.mag)}</div>`); // Format number with comma separators
                 })
                 .on('mousemove', (event) => {
                     //position the tooltip
@@ -107,12 +106,12 @@ class LeafletMap {
                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
                         .attr("fill", d => vis.colorScale(d.mag)) //change the fill  TO DO- change fill again
-                        .attr("r", rad) //change radius
+                        .attr("r", rad) // change radius back
 
-                    d3.select('#tooltip').style('opacity', 0); //turn off the tooltip
+                    d3.select('#tooltip').style('opacity', 0); // turn off the tooltip
                 })
         
-        //handler here for updating the map, as you zoom in and out           
+        // handler here for updating the map, as you zoom in and out           
         vis.theMap.on("zoomend", function(){
             rad = vis.theMap.getZoom() * 2;
             vis.updateVis();
@@ -125,27 +124,27 @@ class LeafletMap {
 
     }
 
+
     updateVis() {
         let vis = this;
 
-        //want to see how zoomed in you are? 
+        // want to see how zoomed in you are? 
         console.log(vis.theMap.getZoom()); //how zoomed am I?
         
-        //----- maybe you want to use the zoom level as a basis for changing the size of the points... ?
+        // use the zoom level as a basis for changing the size of the points
         let rad = vis.theMap.getZoom() * 2;
 
-        //redraw based on new zoom- need to recalculate on-screen position
+        // redraw dots based on new zoom - need to recalculate on-screen position
         vis.Dots
             .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
             .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
-            .attr("fill", d => vis.colorScale(d.mag))
-            .attr("r", rad);
+            .attr("fill", d => vis.colorScale(d.mag)) // color dot by magnitude
+            .attr("r", rad); // radius proportional to zoom level
     }
 
 
     renderVis() {
         let vis = this;
-
-        //not using right now... 
+        // not using right now... 
     }
 }
