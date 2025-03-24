@@ -87,7 +87,7 @@ class LeafletMap {
                 .attr("r", rad)  // radius proportional to zoom level
                 
                 .on('mouseover', function(event,d) { //function to add mouseover event
-                    d3.select(this).raise(); // Bring this dot to the front
+                    d3.select(this).raise(); // Bring this dot to the front, hurts performance but looks better
 
                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
@@ -98,12 +98,19 @@ class LeafletMap {
                     d3.select('#tooltip')
                         .style('opacity', 1)
                         .style('z-index', 1000000)
-                        .html(`<div class="tooltip-label">City: ${d.place}, </br> Magnitude ${d3.format(',')(d.mag)}</div>`); // Format number with comma separators
+                        .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, </br><strong>Date:</strong> ${d.time.substring(0, 10)}, </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
                 })
                 .on('mousemove', (event) => {
                     //position the tooltip
+                    let x = event.pageX; // offset tooltip to right
+                    if (event.pageX < window.innerWidth / 2) { // if mouse is on left side of screen
+                        x = event.pageX + 10; // offset tooltip to right
+                    } else { // if mouse is on right side of screen
+                        const tooltipWidth = d3.select("#tooltip").node().offsetWidth;
+                        x = event.pageX - tooltipWidth - 10; // offset tooltip to left
+                    }
                     d3.select('#tooltip')
-                        .style('left', (event.pageX + 10) + 'px')   
+                        .style('left', (x) + 'px')   
                         .style('top', (event.pageY + 10) + 'px');
                 })              
                 .on('mouseleave', function() { //function to add mouseover event
