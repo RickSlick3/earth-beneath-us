@@ -41,13 +41,17 @@ class LeafletMap {
         vis.base_layer = L.tileLayer(vis.esriUrl, {
             id: 'esri-image',
             attribution: vis.esriAttr,
-            ext: 'png'
+            ext: 'png',
+            // noWrap: true  // This disables the tile wrapping, using maxBounds below looks better
         });
 
         vis.theMap = L.map('my-map', {
             center: [30, 0],
             zoom: 2,
-            layers: [vis.base_layer]
+            minZoom: 1,
+            maxZoom: 7,
+            layers: [vis.base_layer],
+            maxBounds: [[-90, -180], [90, 180]],  // Restrict panning to world bounds
         });
 
         // In your initVis() after setting up vis.data
