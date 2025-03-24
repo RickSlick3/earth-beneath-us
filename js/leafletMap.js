@@ -82,6 +82,9 @@ class LeafletMap {
                 .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
                 .attr("r", rad)  // --- TO DO- want to make radius proportional to earthquake size? 
                 .on('mouseover', function(event,d) { //function to add mouseover event
+                    // Bring this element to the front
+                    d3.select(this).raise();
+
                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
                         .attr("fill", "steelblue") //change the fill
@@ -92,7 +95,6 @@ class LeafletMap {
                         .style('opacity', 1)
                         .style('z-index', 1000000)
                         // Format number with million and thousand separator
-                        //***** TO DO- change this tooltip to show useful information about the quakes
                         .html(`<div class="tooltip-label">City: ${d.place}, </br> Magnitude ${d3.format(',')(d.mag)}</div>`);
                 })
                 .on('mousemove', (event) => {
@@ -107,7 +109,7 @@ class LeafletMap {
                         .attr("fill", d => vis.colorScale(d.mag)) //change the fill  TO DO- change fill again
                         .attr("r", rad) //change radius
 
-                    d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+                    d3.select('#tooltip').style('opacity', 0); //turn off the tooltip
                 })
         
         //handler here for updating the map, as you zoom in and out           
