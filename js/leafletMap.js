@@ -20,7 +20,6 @@ class LeafletMap {
     initVis() {
         let vis = this;
 
-
         //ESRI
         vis.esriUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
         vis.esriAttr = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
@@ -63,7 +62,10 @@ class LeafletMap {
         //initialize svg for d3 to add to map
         L.svg({clickable:true}).addTo(vis.theMap)// we have to make the svg layer clickable
         vis.overlay = d3.select(vis.theMap.getPanes().overlayPane)
-        vis.svg = vis.overlay.select('svg').attr("pointer-events", "auto")    
+        vis.svg = vis.overlay.select('svg').attr("pointer-events", "auto")   
+        
+        // variable to set the radius of the dots
+        let rad = vis.theMap.getZoom() * 2;
 
         //these are the city locations, displayed as a set of dots 
         vis.Dots = vis.svg.selectAll('circle')
@@ -78,12 +80,12 @@ class LeafletMap {
                 //We have to select the the desired one using .x or .y
                 .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
                 .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
-                .attr("r", d => d.mag)  // --- TO DO- want to make radius proportional to earthquake size? 
+                .attr("r", rad)  // --- TO DO- want to make radius proportional to earthquake size? 
                 .on('mouseover', function(event,d) { //function to add mouseover event
                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
                         .attr("fill", "steelblue") //change the fill
-                        .attr('r', d => d.mag * 2); //change radius
+                        .attr('r', rad * 1.5); //change radius
 
                     //create a tool tip
                     d3.select('#tooltip')
@@ -92,7 +94,6 @@ class LeafletMap {
                         // Format number with million and thousand separator
                         //***** TO DO- change this tooltip to show useful information about the quakes
                         .html(`<div class="tooltip-label">City: ${d.place}, </br> Magnitude ${d3.format(',')(d.mag)}</div>`);
-
                 })
                 .on('mousemove', (event) => {
                     //position the tooltip
@@ -104,14 +105,14 @@ class LeafletMap {
                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
                         .attr("fill", d => vis.colorScale(d.mag)) //change the fill  TO DO- change fill again
-                        .attr("r", d => d.mag) //change radius
+                        .attr("r", rad) //change radius
 
                     d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
-
                 })
         
         //handler here for updating the map, as you zoom in and out           
         vis.theMap.on("zoomend", function(){
+            rad = vis.theMap.getZoom() * 2;
             vis.updateVis();
         });
 
@@ -127,14 +128,16 @@ class LeafletMap {
 
         //want to see how zoomed in you are? 
         console.log(vis.theMap.getZoom()); //how zoomed am I?
+        
         //----- maybe you want to use the zoom level as a basis for changing the size of the points... ?
+        let rad = vis.theMap.getZoom() * 2;
 
         //redraw based on new zoom- need to recalculate on-screen position
         vis.Dots
             .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
             .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
             .attr("fill", d => vis.colorScale(d.mag))
-            .attr("r", d => d.mag);
+            .attr("r", rad);
     }
 
 
