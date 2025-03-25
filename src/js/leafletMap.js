@@ -158,4 +158,31 @@ class LeafletMap {
         let vis = this;
         // not using right now... 
     }
+
+
+    // Use to update dots with new data
+    updateData(newData) {
+        let vis = this;
+
+        // Update the data reference
+        vis.data = newData;
+        
+        // Rebind the new data to the dots selection.
+        // Use a key function if you have a unique identifier.
+        vis.Dots = vis.svg.selectAll('circle')
+            .data(newData, d => d.id)
+            .join(
+                enter => enter.append('circle') // create a new dot
+                                .attr("fill", d => vis.colorScale(d.mag))
+                                .attr("stroke", "black")
+                                .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
+                                .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
+                                .attr("r", vis.theMap.getZoom() * 2),
+                update => update, // keep dot
+                exit => exit.remove() // remove dot
+            );
+    
+        // Put new dots in the correct place
+        vis.updateVis();
+    }
 }

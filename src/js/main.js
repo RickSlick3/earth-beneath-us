@@ -13,7 +13,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
 
     // Initialize chart and then show it
     leafletMap = new LeafletMap({ parentElement: '#my-map'}, subsetData);
-
-
+    
+    // sample of how to update the data
+    // leafletMap.updateData(subsetData.filter((d, i) => d.type == "earthquake" && i < 100));
   })
   .catch(error => console.error(error));
