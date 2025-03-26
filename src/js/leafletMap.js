@@ -261,7 +261,7 @@ class LeafletMap {
         // IMPORTANT
         // Define a default brush selection.
         // Here the brush starts from January 1, 2025, and extends to the end of the context range.
-        const defaultBrushSelection = [vis.xScaleContext(new Date('2025-01-01')), vis.xScaleContext.range()[1]];
+        const defaultBrushSelection = [vis.xScaleContext(new Date('2025-02-01')), vis.xScaleContext.range()[1]];
         // Apply the brush to the brush group and move it to the default selection.
         vis.brushG
             .call(vis.brush)
@@ -272,7 +272,8 @@ class LeafletMap {
     brushed(selection) { // need to make this make a new subset of the data and then call updateData
         let vis = this;
 
-
+        console.log("brushed selection: ", selection);
+        // WHAT DO I PUT HERE TO MAKE A NEW SUBSET OF THE DATA?
     }
 
 

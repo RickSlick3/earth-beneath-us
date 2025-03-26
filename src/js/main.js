@@ -14,10 +14,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       d.date = parseTime(d.time.substring(0, 10));
     });
 
-    // const subsetData = data.filter(d => d.magSource == "us");
-    // const subsetData = data.filter((d, i) => i < 500);
-    const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 3116); // only 2025 data
-
+    const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 3116); // 3116 gives only 2025 data
+    
     // Initialize chart and then show it
     leafletMap = new LeafletMap({ parentElement: '#my-map'}, subsetData);
     
