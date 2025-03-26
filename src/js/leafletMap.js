@@ -11,8 +11,7 @@ class LeafletMap {
             mapHeight: _config.mapHeight || 500, // Height of the map
             contextHeight: 100, // Height of the context
             contextWidth: 800, // Width of the context
-            margin: { top: 50, right: 20, bottom: 20, left: 20 },
-            // contextMargin: { top: 280, right: 10, bottom: 20, left: 45 },
+            margin: { top: 10, right: 40, bottom: 20, left: 40 },
         }
         this.data = _data;
         this.initVis();
@@ -114,6 +113,23 @@ class LeafletMap {
             .attr('transform', `translate(0,${vis.config.contextHeight})`);
 
         // Brushing
+        // Create a y-axis generator for frequency
+        vis.yAxisContext = d3.axisLeft(vis.yScaleContext)
+            .ticks(4); // adjust number of ticks as needed
+
+        // Append a group for the y-axis on the left side.
+        vis.yAxisContextG = vis.context.append('g')
+            .attr('class', 'axis y-axis')
+            .attr('transform', 'translate(0,0)');  // left edge of the context group
+
+        vis.yAxisContextG.append("text")
+            .attr("class", "axis-title")
+            .attr("transform", `translate(-30, ${vis.config.contextHeight / 2}) rotate(-90)`)
+            .style("text-anchor", "middle")
+            .text("Frequency")
+            .style("fill", "black");
+
+        // Brushing
         // Append a group to contain the brush component.
         vis.brushG = vis.context.append('g')
             .attr('class', 'brush x-brush');
@@ -212,20 +228,21 @@ class LeafletMap {
         // Brushing
         // Define accessor functions to extract the date (x-value) and close (y-value) from data objects.
         vis.xValue = d => d.date;
-        vis.yValue = d => d.mag; // Need to find out what to set as y-value for earthquake freq
+        vis.yValue = d => d.freq;
+
+        // Brushing
+        // Set the domains for the context scale based on the minimum and maximum values in the data.
+        vis.xScaleContext.domain(d3.extent(vis.data, vis.xValue));
+        // For the y-scale, start at 0 and go up to the maximum frequency
+        vis.yScaleContext.domain([0, d3.max(vis.data, vis.yValue)]);
 
         // Brushing
         // Create a D3 area generator for the context chart.
         // It draws an area under the curve, with the bottom fixed at the height of the context chart.
         vis.area = d3.area()
             .x(d => vis.xScaleContext(vis.xValue(d)))  // Map the date to the x coordinate in context.
-            .y1(d => vis.yScaleContext(vis.yValue(d)))   // Map the close value to the top boundary of the area.
+            .y1(d => vis.yScaleContext(vis.yValue(d)))   // Map the frequency to the top boundary of the area.
             .y0(vis.config.contextHeight);              // Set the baseline (bottom) of the area.
-
-        // Brushing
-        // Set the domains for the context scale based on the minimum and maximum values in the data.
-        vis.xScaleContext.domain(d3.extent(vis.data, vis.xValue));
-        vis.yScaleContext.domain(d3.extent(vis.data, vis.yValue));
 
         // want to see how zoomed in you are? 
         console.log("Current Zoom Level: ", vis.theMap.getZoom()); //how zoomed am I?
@@ -257,6 +274,8 @@ class LeafletMap {
         // Brushing
         // Render the x-axis for the context chart.
         vis.xAxisContextG.call(vis.xAxisContext);
+
+        vis.yAxisContextG.call(vis.yAxisContext);
 
         // Brushing
         // Define a default brush selection.
