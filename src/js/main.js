@@ -1,3 +1,8 @@
+
+// We use d3.timeParse() to convert a string into JS date object
+// Initialize helper function
+const parseTime = d3.timeParse("%Y-%m-%d");
+
 d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'data/2024-2025.csv'
 .then(data => {
     console.log("number of items: " + data.length);
@@ -5,11 +10,13 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     data.forEach(d => {  //convert from string to number
       d.latitude = +d.latitude; 
       d.longitude = +d.longitude;  
+
+      d.date = parseTime(d.time.substring(0, 10));
     });
 
     // const subsetData = data.filter(d => d.magSource == "us");
     // const subsetData = data.filter((d, i) => i < 500);
-    const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 3000)
+    const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 3116); // only 2025 data
 
     // Initialize chart and then show it
     leafletMap = new LeafletMap({ parentElement: '#my-map'}, subsetData);
