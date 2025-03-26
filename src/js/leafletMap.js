@@ -8,15 +8,19 @@ class LeafletMap {
     constructor(_config, _data) {
         this.config = {
             parentElement: _config.parentElement,
+            mapHeight: _config.mapHeight || 500, // Height of the map
+            contextHeight: 50, // Height of the context
+            contextWidth: 800, // Width of the context
+            margin: { top: 100, right: 20, bottom: 20, left: 20 },
+            // contextMargin: { top: 280, right: 10, bottom: 20, left: 45 },
         }
-
         this.data = _data;
         this.initVis();
     }
 
     /**
-     * We initialize scales/axes and append static elements, such as axis titles.
-     */
+    * We initialize scales/axes and append static elements, such as axis titles.
+    */
     initVis() {
         let vis = this;
 
@@ -62,6 +66,69 @@ class LeafletMap {
             .interpolator(d3.interpolateReds);
 
         //if you stopped here, you would just have a map
+
+        /**
+        * Set up the brushing (context) to filter the points on the map
+        */
+
+        // Calculate the overall container width and height, including margins.
+        const containerWidth = vis.config.contextWidth + vis.config.margin.left + vis.config.margin.right;
+        const containerHeight = vis.config.contextHeight + vis.config.margin.top + vis.config.margin.bottom;
+
+        // IMPORTANT
+        // Define the x-scale for the context chart (also a time scale).
+        vis.xScaleContext = d3.scaleTime()
+            .range([0, vis.config.contextWidth]);
+
+        // IMPORTANT
+        // Define the y-scale for the context chart.
+        vis.yScaleContext = d3.scaleLinear()
+            .range([vis.config.contextHeight, 0])
+            .nice();
+
+        // IMPORTANT
+        // Initialize the bottom x-axis for the context chart.
+        vis.xAxisContext = d3.axisBottom(vis.xScaleContext)
+            .tickSizeOuter(0);
+
+        // IMPORTANT
+        // Create the main SVG container and set its dimensions.
+        vis.svg = d3.select('#context')
+            .attr('width', containerWidth)
+            .attr('height', containerHeight);
+
+        // IMPORTANT
+        // Append a group for the context chart (the brush area) and position it according to context margins.
+        vis.context = vis.svg.append('g')
+            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
+
+        // IMPORTANT
+        // Append a path element for the area chart in the context view.
+        vis.contextAreaPath = vis.context.append('path')
+            .attr('class', 'chart-area');
+
+        // IMPORTANT
+        // Append a group for the context chart's x-axis and position it at the bottom of the context area.
+        vis.xAxisContextG = vis.context.append('g')
+            .attr('class', 'axis x-axis')
+            .attr('transform', `translate(0,${vis.config.contextHeight})`);
+
+        // IMPORTANT
+        // Append a group to contain the brush component.
+        vis.brushG = vis.context.append('g')
+            .attr('class', 'brush x-brush');
+
+        // IMPORTANT
+        // Initialize the brush component for the context chart.
+        // The brush allows users to select a time range that controls the focus view.
+        vis.brush = d3.brushX()
+            .extent([[0, 0], [vis.config.contextWidth, vis.config.contextHeight]]) // Define the area that can be brushed.
+            .on('brush', function() {
+                // add code back
+            })
+            .on('end', function() {
+                // add code back
+            });
 
         //initialize svg for d3 to add to map
         L.svg({clickable:true}).addTo(vis.theMap)// we have to make the svg layer clickable
@@ -133,11 +200,30 @@ class LeafletMap {
         //     vis.updateVis();
         // });
 
+        vis.updateVis(); // call updateVis to set the initial view and draw the dots
     }
 
 
     updateVis() {
         let vis = this;
+
+        // IMPORTANT
+        // Define accessor functions to extract the date (x-value) and close (y-value) from data objects.
+        vis.xValue = d => d.date;
+        vis.yValue = d => d.mag; // Need to find out what to set as y-value for earthquake freq
+
+        // IMPORTANT
+        // Create a D3 area generator for the context chart.
+        // It draws an area under the curve, with the bottom fixed at the height of the context chart.
+        vis.area = d3.area()
+            .x(d => vis.xScaleContext(vis.xValue(d)))  // Map the date to the x coordinate in context.
+            .y1(d => vis.yScaleContext(vis.yValue(d)))   // Map the close value to the top boundary of the area.
+            .y0(vis.config.contextHeight);              // Set the baseline (bottom) of the area.
+
+        // IMPORTANT
+        // Set the domains for the context scale based on the minimum and maximum values in the data.
+        vis.xScaleContext.domain(d3.extent(vis.data, vis.xValue));
+        vis.yScaleContext.domain(d3.extent(vis.data, vis.yValue));
 
         // want to see how zoomed in you are? 
         console.log(vis.theMap.getZoom()); //how zoomed am I?
@@ -151,12 +237,40 @@ class LeafletMap {
             .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
             .attr("fill", d => vis.colorScale(d.mag)) // color dot by magnitude
             .attr("r", rad); // radius proportional to zoom level
+
+        vis.renderVis();
     }
 
 
     renderVis() {
         let vis = this;
-        // not using right now... 
+
+        // IMPORTANT
+        // Bind the data to the context area path and generate the SVG path using the area generator.
+        // BUILDS THE AREA OF THE CONTEXT
+        vis.contextAreaPath
+            .datum(vis.data)
+            .attr('d', vis.area);
+
+        // IMPORTANT
+        // Render the x-axis for the context chart.
+        vis.xAxisContextG.call(vis.xAxisContext);
+
+        // IMPORTANT
+        // Define a default brush selection.
+        // Here the brush starts from January 1, 2025, and extends to the end of the context range.
+        const defaultBrushSelection = [vis.xScaleFocus(new Date('2025-01-01')), vis.xScaleContext.range()[1]];
+        // Apply the brush to the brush group and move it to the default selection.
+        vis.brushG
+            .call(vis.brush)
+            .call(vis.brush.move, defaultBrushSelection);
+    }
+
+
+    brushed(selection) { // need to make this make a new subset of the data and then call updateData
+        let vis = this;
+
+
     }
 
 
