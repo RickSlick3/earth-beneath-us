@@ -228,17 +228,17 @@ class LeafletMap {
         vis.yScaleContext.domain(d3.extent(vis.data, vis.yValue));
 
         // want to see how zoomed in you are? 
-        console.log(vis.theMap.getZoom()); //how zoomed am I?
+        console.log("Current Zoom Level: ", vis.theMap.getZoom()); //how zoomed am I?
         
-        // use the zoom level as a basis for changing the size of the points
-        let rad = vis.theMap.getZoom() * 2;
+        // // use the zoom level as a basis for changing the size of the points
+        // let rad = vis.theMap.getZoom() * 2;
 
-        // redraw dots based on new zoom - need to recalculate on-screen position
-        vis.Dots
-            .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
-            .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
-            .attr("fill", d => vis.colorScale(d.mag)) // color dot by magnitude
-            .attr("r", rad); // radius proportional to zoom level
+        // // redraw dots based on new zoom - need to recalculate on-screen position
+        // vis.Dots
+        //     .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
+        //     .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
+        //     .attr("fill", d => vis.colorScale(d.mag)) // color dot by magnitude
+        //     .attr("r", rad); // radius proportional to zoom level
 
         vis.renderVis();
     }
@@ -261,7 +261,7 @@ class LeafletMap {
         // IMPORTANT
         // Define a default brush selection.
         // Here the brush starts from January 1, 2025, and extends to the end of the context range.
-        const defaultBrushSelection = [vis.xScaleContext(new Date('2025-02-01')), vis.xScaleContext.range()[1]];
+        const defaultBrushSelection = [vis.xScaleContext(new Date('2025-03-01')), vis.xScaleContext.range()[1]];
         // Apply the brush to the brush group and move it to the default selection.
         vis.brushG
             .call(vis.brush)
@@ -272,8 +272,20 @@ class LeafletMap {
     brushed(selection) { // need to make this make a new subset of the data and then call updateData
         let vis = this;
 
-        console.log("brushed selection: ", selection);
-        // WHAT DO I PUT HERE TO MAKE A NEW SUBSET OF THE DATA?
+        if (selection) {
+            // Convert pixel positions from the brush selection into date values.
+            const startDate = vis.xScaleContext.invert(selection[0]);
+            const endDate = vis.xScaleContext.invert(selection[1]);
+    
+            // Filter the full dataset (stored in vis.allData) using the d.date property.
+            const filteredData = vis.data.filter(d => d.date >= startDate && d.date <= endDate);
+            
+            // Update the map with the filtered data.
+            vis.updateData(filteredData);
+        } else {
+            // If no selection exists (e.g., brush cleared), reset to the full dataset.
+            vis.updateData(vis.data);
+        }
     }
 
 
@@ -282,7 +294,7 @@ class LeafletMap {
         let vis = this;
 
         // Update the data reference
-        vis.data = newData;
+        // vis.data = newData;
         
         // Rebind the new data to the dots selection.
         // Use a key function if you have a unique identifier.
@@ -300,6 +312,19 @@ class LeafletMap {
             );
     
         // Put new dots in the correct place
-        vis.updateVis();
+        // vis.updateVis(); // calling update vis creates endless loop, moved dot logic here
+
+        // want to see how zoomed in you are? 
+        console.log("Current Zoom Level: ", vis.theMap.getZoom()); //how zoomed am I?
+
+        // use the zoom level as a basis for changing the size of the points
+        let rad = vis.theMap.getZoom() * 2;
+
+        // redraw dots based on new zoom - need to recalculate on-screen position
+        vis.Dots
+            .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
+            .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
+            .attr("fill", d => vis.colorScale(d.mag)) // color dot by magnitude
+            .attr("r", rad); // radius proportional to zoom level
     }
 }
