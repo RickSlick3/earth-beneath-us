@@ -98,7 +98,7 @@ class LeafletMap {
                     d3.select('#tooltip')
                         .style('opacity', 1)
                         .style('z-index', 1000000)
-                        .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, </br><strong>Date:</strong> ${d.time.substring(0, 10)}, </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
+                        .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, </br><strong>Depth:</strong> ${d.depth} km, </br><strong>Date:</strong> ${d.time.substring(0, 10)}, </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
                 })
                 .on('mousemove', (event) => {
                     //position the tooltip
