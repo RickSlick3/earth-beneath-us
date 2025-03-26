@@ -9,9 +9,9 @@ class LeafletMap {
         this.config = {
             parentElement: _config.parentElement,
             mapHeight: _config.mapHeight || 500, // Height of the map
-            contextHeight: 50, // Height of the context
+            contextHeight: 100, // Height of the context
             contextWidth: 800, // Width of the context
-            margin: { top: 100, right: 20, bottom: 20, left: 20 },
+            margin: { top: 50, right: 20, bottom: 20, left: 20 },
             // contextMargin: { top: 280, right: 10, bottom: 20, left: 45 },
         }
         this.data = _data;
@@ -123,11 +123,13 @@ class LeafletMap {
         // The brush allows users to select a time range that controls the focus view.
         vis.brush = d3.brushX()
             .extent([[0, 0], [vis.config.contextWidth, vis.config.contextHeight]]) // Define the area that can be brushed.
-            .on('brush', function() {
-                // add code back
+            .on('brush', function({ selection }) {
+                // During brushing, if a selection exists, update the focus view accordingly.
+                if (selection) vis.brushed(selection);
             })
-            .on('end', function() {
-                // add code back
+            .on('end', function({ selection }) {
+                // When the brush action ends, if no selection remains, reset the focus view.
+                if (!selection) vis.brushed(null);
             });
 
         //initialize svg for d3 to add to map
@@ -259,7 +261,7 @@ class LeafletMap {
         // IMPORTANT
         // Define a default brush selection.
         // Here the brush starts from January 1, 2025, and extends to the end of the context range.
-        const defaultBrushSelection = [vis.xScaleFocus(new Date('2025-01-01')), vis.xScaleContext.range()[1]];
+        const defaultBrushSelection = [vis.xScaleContext(new Date('2025-01-01')), vis.xScaleContext.range()[1]];
         // Apply the brush to the brush group and move it to the default selection.
         vis.brushG
             .call(vis.brush)
