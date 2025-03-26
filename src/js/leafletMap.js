@@ -156,7 +156,7 @@ class LeafletMap {
         // variable to set the radius of the dots
         let rad = vis.theMap.getZoom() * 2;
 
-        //these are the city locations, displayed as a set of dots 
+        // these are the earthquake locations, displayed as a set of dots 
         vis.Dots = vis.svg.selectAll('circle')
             .data(vis.data) 
             .join('circle')
@@ -217,6 +217,8 @@ class LeafletMap {
         // vis.theMap.on("moveend", function(){
         //     vis.updateVis();
         // });
+
+
 
         vis.updateVis(); // call updateVis to set the initial view and draw the dots
     }
@@ -325,7 +327,44 @@ class LeafletMap {
                                 .attr("stroke", "black")
                                 .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
                                 .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
-                                .attr("r", vis.theMap.getZoom() * 2),
+                                .attr("r", vis.theMap.getZoom() * 2)
+                                
+                                // add mouseover and mouseleave events to the new dot
+                                .on('mouseover', function(event,d) { //function to add mouseover event
+                                    d3.select(this).raise(); // Bring this dot to the front, hurts performance but looks better
+                
+                                    d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                                        .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                                        .attr("fill", "steelblue") //change the fill
+                                        .attr('r', rad * 1.5); //change radius
+                
+                                    //create a tool tip
+                                    d3.select('#tooltip')
+                                        .style('opacity', 1)
+                                        .style('z-index', 1000000)
+                                        .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, </br><strong>Depth:</strong> ${d.depth} km, </br><strong>Date:</strong> ${d.time.substring(0, 10)}, </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
+                                })
+                                .on('mousemove', (event) => {
+                                    //position the tooltip
+                                    let x = event.pageX; // offset tooltip to right
+                                    if (event.pageX < window.innerWidth / 2) { // if mouse is on left side of screen
+                                        x = event.pageX + 10; // offset tooltip to right
+                                    } else { // if mouse is on right side of screen
+                                        const tooltipWidth = d3.select("#tooltip").node().offsetWidth;
+                                        x = event.pageX - tooltipWidth - 10; // offset tooltip to left
+                                    }
+                                    d3.select('#tooltip')
+                                        .style('left', (x) + 'px')   
+                                        .style('top', (event.pageY + 10) + 'px');
+                                })              
+                                .on('mouseleave', function() { //function to add mouseover event
+                                    d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                                        .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                                        .attr("fill", d => vis.colorScale(d.mag)) //change the fill  TO DO- change fill again
+                                        .attr("r", rad) // change radius back
+                
+                                    d3.select('#tooltip').style('opacity', 0); // turn off the tooltip
+                                }),
                 update => update, // keep dot
                 exit => exit.remove() // remove dot
             );
