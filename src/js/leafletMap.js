@@ -61,7 +61,8 @@ class LeafletMap {
         // Create a color scale using d3.scaleSequential (or d3.scaleLinear/d3.scaleQuantize as needed)
         // Here we use the d3.extent() function to get the min and max values of the magnitude in your data.
         vis.colorScale = d3.scaleSequential()
-            .domain(d3.extent(vis.data, d => d.mag))
+            .domain(d3.extent(vis.data, d => d.mag)) // set the domain to the extent of the magnitude
+            // .domain([0, d3.max(vis.data, d => d.mag)]) // set the domain to the min and max of the magnitude
             .interpolator(d3.interpolateReds);
 
         //if you stopped here, you would just have a map
@@ -218,7 +219,62 @@ class LeafletMap {
         //     vis.updateVis();
         // });
 
+        /**
+        * Here we will create the legend for the map
+        */
 
+        // Create an SVG for the legend and append it to the body (or a container)
+        let legendSvg = d3.select("div.leaflet-top.leaflet-right").append("svg")
+            .attr("id", "legend-svg")
+            .attr("width", 20)
+            .attr("height", 205)
+            .style("position", "absolute")
+            .style("left", "-35px")
+            .style("top", "5px")
+            .style("padding", "5px")
+            .style("background-color", "white");
+
+        // Append a defs element for the gradient.
+        let defs = legendSvg.append("defs");
+        let linearGradient = defs.append("linearGradient")
+            .attr("id", "legend-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "100%")
+            .attr("x2", "0%")
+            .attr("y2", "0%");
+
+        // Use your color scale to define the stops.
+        let tickCount = 5;
+        let ticks = vis.colorScale.ticks(tickCount);
+        ticks.forEach((d, i) => {
+            linearGradient.append("stop")
+                .attr("offset", `${(100 * i) / (ticks.length - 1)}%`)
+                .attr("stop-color", vis.colorScale(d));
+        });
+
+        // Append a rectangle that uses the gradient.
+        legendSvg.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 20)
+            .attr("height", 200)
+            .style("fill", "url(#legend-gradient)");
+
+        // Create a scale for the legend axis.
+        let legendScale = d3.scaleLinear()
+            .domain(vis.colorScale.domain())
+            .range([200, 0]);
+
+        let legendAxis = d3.axisRight(legendScale)
+            .ticks(5);
+
+        // Append a group for the legend axis.
+        legendSvg.append("g")
+            .attr("class", "legend-axis")
+            .attr("transform", "translate(0,0)")
+            .call(legendAxis);
+
+        d3.select("#legend-svg").raise();
 
         vis.updateVis(); // call updateVis to set the initial view and draw the dots
     }
