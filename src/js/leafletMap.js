@@ -181,9 +181,13 @@ class LeafletMap {
 
                     //create a tool tip
                     d3.select('#tooltip')
-                        .style('opacity', 1)
+                        .style('display', 'block')
                         .style('z-index', 1000000)
-                        .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, </br><strong>Depth:</strong> ${d.depth} km, </br><strong>Date:</strong> ${d.time.substring(0, 10)}, </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
+                        .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, 
+                          </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, 
+                          </br><strong>Depth:</strong> ${d.depth} km, 
+                          </br><strong>Date:</strong> ${d.time.substring(0, 10)}, 
+                          </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
                 })
                 .on('mousemove', (event) => {
                     //position the tooltip
@@ -204,7 +208,7 @@ class LeafletMap {
                         .attr("fill", d => vis.colorScale(d.mag)) //change the fill  TO DO- change fill again
                         .attr("r", rad) // change radius back
 
-                    d3.select('#tooltip').style('opacity', 0); // turn off the tooltip
+                    d3.select('#tooltip').style('display', 'none'); // turn off the tooltip
                 })
         
         // handler here for updating the map, as you zoom in and out           
@@ -340,9 +344,13 @@ class LeafletMap {
                 
                                     //create a tool tip
                                     d3.select('#tooltip')
-                                        .style('opacity', 1)
+                                        .style('display', 'block')
                                         .style('z-index', 1000000)
-                                        .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, </br><strong>Depth:</strong> ${d.depth} km, </br><strong>Date:</strong> ${d.time.substring(0, 10)}, </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
+                                        .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, 
+                                          </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, 
+                                          </br><strong>Depth:</strong> ${d.depth} km, 
+                                          </br><strong>Date:</strong> ${d.time.substring(0, 10)}, 
+                                          </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
                                 })
                                 .on('mousemove', (event) => {
                                     //position the tooltip
@@ -363,7 +371,7 @@ class LeafletMap {
                                         .attr("fill", d => vis.colorScale(d.mag)) //change the fill  TO DO- change fill again
                                         .attr("r", rad) // change radius back
                 
-                                    d3.select('#tooltip').style('opacity', 0); // turn off the tooltip
+                                    d3.select('#tooltip').style('display', 'none'); // turn off the tooltip
                                 }),
                 update => update, // keep dot
                 exit => exit.remove() // remove dot
