@@ -10,6 +10,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     data.forEach(d => {  //convert from string to number
       d.latitude = +d.latitude; 
       d.longitude = +d.longitude;  
+      // d.depth = +d.depth;
 
       d.date = parseTime(d.time.substring(0, 10));
     });
