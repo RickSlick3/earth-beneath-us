@@ -297,8 +297,8 @@ class LeafletMap {
 
         // Define an array of button objects, each with a label and a color for the small square.
         let buttons = [
-            { label: "Magnitude", color: "#ff0000" },  // green
-            { label: "Depth", color: "#0000ff" }   // orange
+            { label: "Magnitude", color: "#ff0000", interpolator: "interpolateReds" },  // green
+            { label: "Depth", color: "#0000ff", interpolator: "interpolateBlues" }   // orange
         ];
 
         // Create one row per button.
@@ -337,12 +337,41 @@ class LeafletMap {
                     console.log("Current Selection: ", vis.currentSelection);
                     
                     // Update the color scale based on the new selection.
-                    vis.colorScale.domain(d3.extent(vis.data, d => d[vis.currentSelection]));
+                    vis.colorScale
+                        .domain(d3.extent(vis.data, d => d[vis.currentSelection]))
+                        .interpolator(d3[btn.interpolator]); // use the interpolator from the button object
                     
                     // Redraw dots with the updated color scale.
                     vis.Dots.attr("fill", d => vis.colorScale(d[vis.currentSelection]));
                     
-                    // (Optional) Update the legend here if it depends on the current selection.
+                    // Update the legend
+                    let legendScale = d3.scaleLinear()
+                        .domain(vis.colorScale.domain())
+                        .range([200, 0]);
+
+                    let legendAxis = d3.axisRight(legendScale)
+                        .ticks(5);
+
+                    // Update the legend axis group (assuming it has class "legend-axis")
+                    d3.select("svg#legend-svg g.legend-axis")
+                        .call(legendAxis);
+
+                    // Update the gradient stops in the legend
+                    let tickCount = 5;
+                    let ticks = vis.colorScale.ticks(tickCount);
+                    let gradient = d3.select("svg#legend-svg")
+                        .select("defs")
+                        .select("linearGradient#legend-gradient");
+
+                    // Remove old stops before updating
+                    gradient.selectAll("stop").remove();
+
+                    // Append new stops
+                    ticks.forEach((d, i) => {
+                    gradient.append("stop")
+                        .attr("offset", `${(100 * i) / (ticks.length - 1)}%`)
+                        .attr("stop-color", vis.colorScale(d));
+                    });
                 });
         });
 
