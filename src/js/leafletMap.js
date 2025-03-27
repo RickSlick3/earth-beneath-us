@@ -14,6 +14,7 @@ class LeafletMap {
             margin: { top: 10, right: 40, bottom: 20, left: 40 },
         }
         this.data = _data;
+        this.currentSelection = 'mag' // default button selection
         this.initVis();
     }
 
@@ -61,7 +62,8 @@ class LeafletMap {
         // Create a color scale using d3.scaleSequential (or d3.scaleLinear/d3.scaleQuantize as needed)
         // Here we use the d3.extent() function to get the min and max values of the magnitude in your data.
         vis.colorScale = d3.scaleSequential()
-            .domain(d3.extent(vis.data, d => d.mag))
+            .domain(d3.extent(vis.data, d => d[vis.currentSelection])) // set the domain to the extent of the attribute
+            // .domain([0, d3.max(vis.data, d => d[vis.currentSelection])]) // set the domain to the min and max of the attribute
             .interpolator(d3.interpolateReds);
 
         //if you stopped here, you would just have a map
@@ -160,7 +162,7 @@ class LeafletMap {
         vis.Dots = vis.svg.selectAll('circle')
             .data(vis.data) 
             .join('circle')
-                .attr("fill", d => vis.colorScale(d.mag)) // color dot by magnitude
+                .attr("fill", d => vis.colorScale(d[vis.currentSelection])) // color dot by magnitude
                 .attr("stroke", "black")
                 // Leaflet has to take control of projecting points. 
                 // Here we are feeding the latitude and longitude coordinates to
@@ -201,7 +203,7 @@ class LeafletMap {
                 .on('mouseleave', function() { //function to add mouseover event
                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                        .attr("fill", d => vis.colorScale(d.mag)) //change the fill  TO DO- change fill again
+                        .attr("fill", d => vis.colorScale(d[vis.currentSelection])) // change the fill color
                         .attr("r", rad) // change radius back
 
                     d3.select('#tooltip').style('opacity', 0); // turn off the tooltip
@@ -218,7 +220,162 @@ class LeafletMap {
         //     vis.updateVis();
         // });
 
+        /**
+        * Here we will create the legend for the map
+        */
 
+        // Create an SVG for the legend and append it to the body (or a container)
+        let legendSvg = d3.select("div.leaflet-top.leaflet-right").append("svg")
+            .attr("id", "legend-svg")
+            .attr("width", 20)
+            .attr("height", 205)
+            .style("position", "absolute")
+            .style("left", "-35px")
+            .style("top", "5px")
+            .style("padding", "5px")
+            .style("background-color", "white");
+
+        // Append a defs element for the gradient.
+        let defs = legendSvg.append("defs");
+        let linearGradient = defs.append("linearGradient")
+            .attr("id", "legend-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "100%")
+            .attr("x2", "0%")
+            .attr("y2", "0%");
+
+        // Use your color scale to define the stops.
+        let tickCount = 5;
+        let ticks = vis.colorScale.ticks(tickCount);
+        ticks.forEach((d, i) => {
+            linearGradient.append("stop")
+                .attr("offset", `${(100 * i) / (ticks.length - 1)}%`)
+                .attr("stop-color", vis.colorScale(d));
+        });
+
+        // Append a rectangle that uses the gradient.
+        legendSvg.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 20)
+            .attr("height", 200)
+            .style("fill", "url(#legend-gradient)");
+
+        // Create a scale for the legend axis.
+        let legendScale = d3.scaleLinear()
+            .domain(vis.colorScale.domain())
+            .range([200, 0]);
+
+        let legendAxis = d3.axisRight(legendScale)
+            .ticks(5);
+
+        // Append a group for the legend axis.
+        legendSvg.append("g")
+            .attr("class", "legend-axis")
+            .attr("transform", "translate(0,0)")
+            .call(legendAxis);
+
+        d3.select("#legend-svg").raise();
+
+        /**
+        * Here we will create the buttons for the map
+        */
+
+        // Create a container for the buttons and append it to a Leaflet control container
+        let buttonContainer = d3.select("div.leaflet-top.leaflet-right")
+            .append("div")
+            .attr("id", "button-container")
+            .style("position", "absolute")
+            .style("left", "-115px")      // Adjust horizontal position as needed
+            .style("top", "420px")        // Adjust vertical position as needed
+            .style("width", "100px")
+            .style("background-color", "white")
+            .style("padding", "5px 5px 0 5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style("box-shadow", "0 0 5px rgba(0,0,0,0.3)");
+
+        // Define an array of button objects, each with a label and a color for the small square.
+        let buttons = [
+            { label: "Magnitude", color: "#ff0000", interpolator: "interpolateReds" },  // green
+            { label: "Depth", color: "#0000ff", interpolator: "interpolateBlues" }   // orange
+        ];
+
+        // Create one row per button.
+        buttons.forEach(btn => {
+            let row = buttonContainer.append("div")
+                .style("display", "flex")
+                .style("align-items", "center")
+                .style("margin-bottom", "5px");
+            
+            // Append a small square (as a div) with the given background color.
+            row.append("div")
+                .style("width", "15px")
+                .style("height", "15px")
+                .style("background-color", btn.color)
+                .style("margin-right", "5px");
+            
+            // Append a button element with the corresponding label.
+            row.append("button")
+                .text(btn.label)
+                .style("flex-grow", "1")
+                .style("cursor", "pointer")
+                .style('pointer-events', 'all') // allow pointer events
+                .on("click", function() {
+                    // Determine the new selection based on the button label.
+                    let newSelection;
+                    if (btn.label.toLowerCase().includes("mag")) {
+                        newSelection = "mag";
+                    } else if (btn.label.toLowerCase().includes("depth")) {
+                        newSelection = "depth";
+                    } else {
+                        newSelection = btn.label; // fallback option
+                    }
+                    
+                    // Update the current selection.
+                    vis.currentSelection = newSelection;
+                    console.log("Current Selection: ", vis.currentSelection);
+                    
+                    // Update the color scale based on the new selection.
+                    vis.colorScale
+                        .domain(d3.extent(vis.data, d => d[vis.currentSelection]))
+                        .interpolator(d3[btn.interpolator]); // use the interpolator from the button object
+                    
+                    // Redraw dots with the updated color scale.
+                    vis.Dots.attr("fill", d => vis.colorScale(d[vis.currentSelection]));
+                    
+                    // Update the legend
+                    let legendScale = d3.scaleLinear()
+                        .domain(vis.colorScale.domain())
+                        .range([200, 0]);
+
+                    let legendAxis = d3.axisRight(legendScale)
+                        .ticks(5);
+
+                    // Update the legend axis group (assuming it has class "legend-axis")
+                    d3.select("svg#legend-svg g.legend-axis")
+                        .call(legendAxis);
+
+                    // Update the gradient stops in the legend
+                    let tickCount = 5;
+                    let ticks = vis.colorScale.ticks(tickCount);
+                    let gradient = d3.select("svg#legend-svg")
+                        .select("defs")
+                        .select("linearGradient#legend-gradient");
+
+                    // Remove old stops before updating
+                    gradient.selectAll("stop").remove();
+
+                    // Append new stops
+                    ticks.forEach((d, i) => {
+                    gradient.append("stop")
+                        .attr("offset", `${(100 * i) / (ticks.length - 1)}%`)
+                        .attr("stop-color", vis.colorScale(d));
+                    });
+                });
+        });
+
+        d3.select("#button-container").raise();
 
         vis.updateVis(); // call updateVis to set the initial view and draw the dots
     }
@@ -323,7 +480,7 @@ class LeafletMap {
             .data(newData, d => d.id)
             .join(
                 enter => enter.append('circle') // create a new dot
-                                .attr("fill", d => vis.colorScale(d.mag))
+                                .attr("fill", d => vis.colorScale(d[vis.currentSelection]))
                                 .attr("stroke", "black")
                                 .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
                                 .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
@@ -360,7 +517,7 @@ class LeafletMap {
                                 .on('mouseleave', function() { //function to add mouseover event
                                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                                        .attr("fill", d => vis.colorScale(d.mag)) //change the fill  TO DO- change fill again
+                                        .attr("fill", d => vis.colorScale(d[vis.currentSelection])) //change the fill  TO DO- change fill again
                                         .attr("r", rad) // change radius back
                 
                                     d3.select('#tooltip').style('opacity', 0); // turn off the tooltip
@@ -379,7 +536,7 @@ class LeafletMap {
         vis.Dots
             .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
             .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
-            .attr("fill", d => vis.colorScale(d.mag)) // color dot by magnitude
+            .attr("fill", d => vis.colorScale(d[vis.currentSelection])) // color dot by magnitude
             .attr("r", rad); // radius proportional to zoom level
     }
 }
