@@ -12,7 +12,8 @@ class LeafletMap {
         }
         this.data = _data;
         this.filteredData = _data; // keep track of filtered data
-        this.currentSelection = 'mag' // default button selection
+        this.currentSelection = 'mag'; // default button selection
+        this.radius = 0;
         this.initVis();
     }
 
@@ -45,7 +46,7 @@ class LeafletMap {
             id: 'esri-image',
             attribution: vis.esriAttr,
             ext: 'png',
-            // noWrap: true  // This disables the tile wrapping, using maxBounds below looks better
+            noWrap: true  // This disables the tile wrapping, using maxBounds below looks better
         });
 
         vis.theMap = L.map('my-map', {
@@ -72,7 +73,7 @@ class LeafletMap {
         vis.svg = vis.overlay.select('svg').attr("pointer-events", "auto")   
         
         // variable to set the radius of the dots
-        let rad = vis.theMap.getZoom() * 2;
+        vis.radius = vis.theMap.getZoom() * 2;
 
         // these are the earthquake locations, displayed as a set of dots 
         vis.Dots = vis.svg.selectAll('circle')
@@ -87,7 +88,7 @@ class LeafletMap {
                 // We have to select the the desired one using .x or .y
                 .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
                 .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
-                .attr("r", rad)  // radius proportional to zoom level
+                .attr("r", vis.radius)  // radius proportional to zoom level
                 
                 .on('mouseover', function(event,d) { //function to add mouseover event
                     d3.select(this).raise(); // Bring this dot to the front, hurts performance but looks better
@@ -95,7 +96,7 @@ class LeafletMap {
                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
                         .attr("fill", "steelblue") //change the fill
-                        .attr('r', rad * 1.5); //change radius
+                        .attr('r', vis.radius * 1.5); //change radius
 
                     //create a tool tip
                     d3.select('#tooltip')
@@ -121,17 +122,18 @@ class LeafletMap {
                         .style('top', (event.pageY + 10) + 'px');
                 })              
                 .on('mouseleave', function() { //function to add mouseover event
+                    // let rad = vis.theMap.getZoom() * 2;
                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
                         .attr("fill", d => vis.colorScale(d[vis.currentSelection])) // change the fill color
-                        .attr("r", rad) // change radius back
+                        .attr("r", vis.radius) // change radius back
 
                     d3.select('#tooltip').style('display', 'none'); // turn off the tooltip
                 })
         
         // handler here for updating the map, as you zoom in and out           
         vis.theMap.on("zoomend", function(){
-            rad = vis.theMap.getZoom() * 2;
+            vis.radius = vis.theMap.getZoom() * 2; // update the radius based on zoom level
             vis.updateData(vis.filteredData);
         });
 
@@ -170,7 +172,7 @@ class LeafletMap {
         vis.filteredData = newData; // update the filtered data
 
         // variable to set the radius of the dots
-        const radius = vis.theMap.getZoom() * 2;
+        vis.radius = vis.theMap.getZoom() * 2;
         
         // Rebind the new data to the dots selection.
         // Use a key function if you have a unique identifier.
@@ -182,7 +184,7 @@ class LeafletMap {
                                 .attr("stroke", "black")
                                 .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
                                 .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
-                                .attr("r", radius)
+                                .attr("r", vis.radius)
                                 
                                 // add mouseover and mouseleave events to the new dot
                                 .on('mouseover', function(event,d) { //function to add mouseover event
@@ -191,7 +193,7 @@ class LeafletMap {
                                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
                                         .attr("fill", "steelblue") //change the fill
-                                        .attr('r', radius * 1.5); //change radius
+                                        .attr('r', vis.radius * 1.5); //change radius
                 
                                     //create a tool tip
                                     d3.select('#tooltip')
@@ -220,7 +222,7 @@ class LeafletMap {
                                     d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                                         .duration('150') //how long we are transitioning between the two states (works like keyframes)
                                         .attr("fill", d => vis.colorScale(d[vis.currentSelection])) //change the fill  TO DO- change fill again
-                                        .attr("r", radius) // change radius back
+                                        .attr("r", vis.radius) // change radius back
                 
                                         d3.select('#tooltip').style('display', 'none'); // turn off the tooltip
                                 }),
@@ -233,7 +235,7 @@ class LeafletMap {
             .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
             .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
             .attr("fill", d => vis.colorScale(d[vis.currentSelection])) // color dot by magnitude
-            .attr("r", radius); // radius proportional to zoom level
+            .attr("r", vis.radius); // radius proportional to zoom level
     }
 
 
@@ -246,10 +248,10 @@ class LeafletMap {
         // Create an SVG for the legend and append it to the body (or a container)
         let legendSvg = d3.select("div.leaflet-top.leaflet-right").append("svg")
             .attr("id", "legend-svg")
-            .attr("width", 20)
+            .attr("width", 30)
             .attr("height", 205)
             .style("position", "absolute")
-            .style("left", "-35px")
+            .style("left", "-45px")
             .style("top", "5px")
             .style("padding", "5px")
             .style("background-color", "white");
@@ -276,7 +278,7 @@ class LeafletMap {
         legendSvg.append("rect")
             .attr("x", 0)
             .attr("y", 0)
-            .attr("width", 20)
+            .attr("width", 30)
             .attr("height", 200)
             .style("fill", "url(#legend-gradient)");
 
