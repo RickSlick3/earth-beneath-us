@@ -15,6 +15,7 @@ class AreaChart {
         };
         this.data = _data;
         this.onBrushCallback = onBrushCallback; // Called when brush selection changes.
+        this.maxBrushWidth = 200; // Maximum width of the brush selection in pixels
         this.initVis();
     }
 
@@ -71,11 +72,25 @@ class AreaChart {
         vis.areaPath = vis.context.append('path')
             .attr('class', 'chart-area');
 
-        // Create brush.
+        // Create brush
         vis.brush = d3.brushX()
-            .extent([[0, 0], [vis.config.contextWidth, vis.config.contextHeight]])
-            .on('brush', ({ selection }) => vis.brushed(selection))
-            .on('end', ({ selection }) => { if (!selection) vis.brushed(null); });
+        .extent([[0, 0], [vis.config.contextWidth, vis.config.contextHeight]])
+        .on('brush', ({ selection }) => {
+            if (selection) {
+                let [x0, x1] = selection;
+                // If the selection exceeds the maximum width, stop it from growing
+                if (x1 - x0 > vis.maxBrushWidth) {
+                    x1 = x0 + vis.maxBrushWidth;
+                    // Update the brush selection.
+                    vis.brushG.call(vis.brush.move, [x0, x1]);
+                }
+                vis.brushed([x0, x1]);
+            }
+        })
+        .on('end', ({ selection }) => {
+            if (!selection) vis.brushed(null);
+        });
+        
         vis.brushG = vis.context.append('g')
             .attr('class', 'brush x-brush')
             .call(vis.brush);
