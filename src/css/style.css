@@ -9,7 +9,6 @@
 
 #tooltip {
   position: absolute;
-  opacity: 0;
   background: #fff;
   box-shadow: 2px 2px 3px 0px rgb(92 92 92 / 0.5);
   border: 1px solid #ddd;
