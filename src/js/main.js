@@ -34,20 +34,22 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
 
     // Initialize chart and then show it
     leafletMap = new LeafletMap({ parentElement: '#my-map'}, subsetData);
+
+    const heatmap = new Heatmap({
+      parentElement: "#heatmap",  // make sure to have a container with this id in your HTML
+      width: 500,
+      height: 500,
+      margin: { top: 20, right: 20, bottom: 40, left: 40 },
+      xBins: 20,
+      yBins: 20
+    }, subsetData);
     
     areaChart = new AreaChart({ parentElement: '#context' },
       subsetData,
       filteredData => {
         leafletMap.updateData(filteredData);
+        heatmap.updateData(filteredData);
       });
 
-      const heatmap = new Heatmap({
-        parentElement: "#heatmap",  // make sure to have a container with this id in your HTML
-        width: 500,
-        height: 500,
-        margin: { top: 20, right: 20, bottom: 40, left: 40 },
-        xBins: 20,
-        yBins: 20
-      }, subsetData);
-  })
-  .catch(error => console.error(error));
+})
+.catch(error => console.error(error));

@@ -59,8 +59,7 @@ class Heatmap {
 
         // Generate tick arrays.
         let xTicks = d3.range(xDomain[0], xDomain[1] + 1); // whole numbers
-        // Force y-ticks to start at 0 and increment by 100.
-        let yTicks = d3.range(0, yDomain[1] + 1, 100);
+        let yTicks = d3.range(0, yDomain[1] + 1, 100);       // multiples of 100 starting at 0
 
         // Force the scales to exactly match the tick boundaries.
         vis.xScale.domain([xTicks[0], xTicks[xTicks.length - 1]]);
@@ -177,5 +176,54 @@ class Heatmap {
             .text(d => d.count)
             .style("fill", "black")
             .style("font-size", "10px");
+    }
+
+    /**
+     * Update the heatmap based on new data (e.g., when the areaChart brush selection changes).
+     * This method recalculates bin counts and updates the heatmap.
+     * @param {Array} newData - The new (filtered) data array.
+     */
+    updateData(newData) {
+        let vis = this;
+        // Update the data.
+        vis.data = newData;
+        // Reset bin counts.
+        vis.bins.forEach(bin => bin.count = 0);
+        // Recount data points in each bin.
+        vis.data.forEach(d => {
+            let xBin = vis.xThresholds.findIndex((threshold, i) => {
+                if (i < vis.xThresholds.length - 1) {
+                    return d.mag >= threshold && d.mag < vis.xThresholds[i + 1];
+                }
+            });
+            let yBin = vis.yThresholds.findIndex((threshold, j) => {
+                if (j < vis.yThresholds.length - 1) {
+                    return d.depth >= threshold && d.depth < vis.yThresholds[j + 1];
+                }
+            });
+            if (d.mag === vis.xThresholds[vis.xThresholds.length - 1])
+                xBin = vis.xThresholds.length - 2;
+            if (d.depth === vis.yThresholds[vis.yThresholds.length - 1])
+                yBin = vis.yThresholds.length - 2;
+            if (xBin >= 0 && yBin >= 0) {
+                let binIndex = xBin * (vis.yThresholds.length - 1) + yBin;
+                vis.bins[binIndex].count += 1;
+            }
+        });
+        // Update maximum count and color scale domain.
+        vis.maxCount = d3.max(vis.bins, d => d.count);
+        vis.heatColor.domain([0, vis.maxCount]);
+
+        // Update rectangle fill colors.
+        vis.chart.selectAll(".heat-rect")
+            .data(vis.bins)
+            .transition().duration(500)
+            .attr("fill", d => vis.heatColor(d.count));
+
+        // Update text labels.
+        vis.chart.selectAll(".heat-label")
+            .data(vis.bins)
+            .transition().duration(500)
+            .text(d => d.count);
     }
 }
