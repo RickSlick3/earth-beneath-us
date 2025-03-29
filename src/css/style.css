@@ -15,6 +15,7 @@
   font-size: 12px;
   font-weight: 600;
   padding: 2px 8px;
+  display: none;
 }
 .tooltip-label {
   font-weight: 500;
