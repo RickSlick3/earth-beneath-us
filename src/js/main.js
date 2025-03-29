@@ -33,7 +33,11 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     console.log('subset data: ', subsetData);
 
     // Initialize the map.
-    leafletMap = new LeafletMap({ parentElement: '#my-map' }, subsetData);
+    leafletMap = new LeafletMap({ parentElement: '#my-map' }, subsetData,
+      filteredData => {
+        heatmap.updateData(filteredData);
+      }
+    );
 
     // Instantiate the heatmap with an onBinSelection callback.
     const heatmap = new Heatmap({
@@ -54,7 +58,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       subsetData,
       filteredData => {
         leafletMap.setFilteredDataAndUpdate(filteredData);
-        heatmap.updateData(filteredData);
+        //heatmap.updateData(filteredData);
       });
   })
   .catch(error => console.error(error));

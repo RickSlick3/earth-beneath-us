@@ -5,7 +5,7 @@ class LeafletMap {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _data) {
+    constructor(_config, _data, onFilterCallback) {
         this.config = {
             parentElement: _config.parentElement,
             mapHeight: _config.mapHeight || 500, // Height of the map
@@ -16,6 +16,7 @@ class LeafletMap {
         this.radius = 0;
         this.selectionMode = false;
         this.filterRectangle = null;
+        this.onFilterCallback = onFilterCallback;
         this.initVis();
     }
 
@@ -226,6 +227,8 @@ class LeafletMap {
           let latlng = {lat: x.latitude, lng: x.longitude};
           return vis.selectedBounds.contains(latlng);
         });
+
+        vis.onFilterCallback(vis.filteredData);
 
         // variable to set the radius of the dots
         vis.radius = vis.theMap.getZoom() * 2;
