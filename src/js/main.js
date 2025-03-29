@@ -38,7 +38,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     areaChart = new AreaChart({ parentElement: '#context' },
       subsetData,
       filteredData => {
-        leafletMap.updateData(filteredData);
+        leafletMap.setFilteredDataAndUpdate(filteredData);
       });
   })
   .catch(error => console.error(error));

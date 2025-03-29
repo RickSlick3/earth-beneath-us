@@ -14,6 +14,8 @@ class LeafletMap {
         this.filteredData = _data; // keep track of filtered data
         this.currentSelection = 'mag'; // default button selection
         this.radius = 0;
+        this.selectionMode = false;
+        this.filterRectangle = null;
         this.initVis();
     }
 
@@ -56,6 +58,50 @@ class LeafletMap {
             maxZoom: 7,
             layers: [vis.base_layer],
             maxBounds: [[-90, -180], [90, 180]],  // Restrict panning to world bounds
+        });
+
+        let startPoint = null; // Store start point of the selection
+        vis.selectedBounds = vis.theMap.getBounds();
+
+        // Mouse Down - Start Selection
+        vis.theMap.on("mousedown", function (e) {
+            if (!vis.selectionMode) return;
+            startPoint = e.latlng; // Store the starting LatLng
+        });
+
+        // Mouse Move - Update Rectangle
+        vis.theMap.on("mousemove", function (e) {
+            if (!vis.selectionMode || !startPoint) return;
+
+            // Get current mouse position in LatLng
+            let currentPoint = e.latlng;
+            
+            // Define bounds for the rectangle
+            let bounds = L.latLngBounds(startPoint, currentPoint);
+
+            // If rectangle already exists, update it
+            if (vis.filterRectangle) {
+                vis.filterRectangle.setBounds(bounds);
+            } else {
+                // Otherwise, create a new rectangle
+                vis.filterRectangle = L.rectangle(bounds, { color: "gray", weight: 1, pane: "shadowPane" }).addTo(vis.theMap);
+            }
+        });
+
+        // Mouse Up - Finalize Selection
+        vis.theMap.on("mouseup", function () {
+            if (!vis.selectionMode || !vis.filterRectangle) return;
+
+            vis.selectedBounds = vis.filterRectangle.getBounds(); // Get selected area
+            console.log("Selected Area:", vis.selectedBounds);
+
+            // Zoom to the selected area
+            vis.theMap.fitBounds(vis.selectedBounds);
+            vis.updateData();
+
+            // Reset selection
+            startPoint = null;
+            vis.toggleSelectionArea();
         });
 
         // Create a color scale using d3.scaleSequential (or d3.scaleLinear/d3.scaleQuantize as needed)
@@ -134,7 +180,7 @@ class LeafletMap {
         // handler here for updating the map, as you zoom in and out           
         vis.theMap.on("zoomend", function(){
             vis.radius = vis.theMap.getZoom() * 2; // update the radius based on zoom level
-            vis.updateData(vis.filteredData);
+            vis.updateData();
         });
 
         // handler here for updating the map, as you swipe around
@@ -164,12 +210,22 @@ class LeafletMap {
 
     }
 
+    setFilteredDataAndUpdate(newData) {
+      let vis = this;
+      vis.timeFilteredData = newData;
+      vis.filteredData = vis.timeFilteredData;
+      vis.updateData();
+    }
+
 
     // Use to update dots with new data
-    updateData(newData) {
+    updateData() {
         let vis = this;
 
-        vis.filteredData = newData; // update the filtered data
+        vis.filteredData = vis.filteredData.filter(x => {
+          let latlng = {lat: x.latitude, lng: x.longitude};
+          return vis.selectedBounds.contains(latlng);
+        });
 
         // variable to set the radius of the dots
         vis.radius = vis.theMap.getZoom() * 2;
@@ -401,5 +457,65 @@ class LeafletMap {
         });
 
         d3.select("#button-container").raise();
+        
+        vis.buttonText = "Enter Selection Mode"
+        // Map Area Select Button
+        vis.areaSelectButton = d3.select("div.leaflet-top.leaflet-left")
+            .append("button")
+            .attr("id", "area-button")
+            .text(vis.buttonText)
+            .style("position", "absolute")
+            .style("left", "50px")      // Adjust horizontal position as needed
+            .style("top", "10px")        // Adjust vertical position as needed
+            .style("width", "140px")
+            .style("background-color", "white")
+            .style("padding", "15px 15px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style("flex-grow", "1")
+            .style("cursor", "pointer")
+            .style('pointer-events', 'all') // allow pointer events
+            .on("click", function() {
+              vis.toggleSelectionArea();
+            });
+    }
+
+    toggleSelectionArea() {
+      let vis = this;
+
+      if (vis.buttonText == "Enter Selection Mode") {
+        vis.selectionMode = true;
+        vis.theMap.dragging.disable();
+        vis.theMap.scrollWheelZoom.disable();
+        vis.theMap.doubleClickZoom.disable();
+        vis.theMap.boxZoom.disable();
+        vis.overlay.style('cursor', 'crosshair');
+        vis.buttonText = "Exit Selection Mode";
+      } else {
+        vis.selectionMode = false;
+        vis.theMap.dragging.enable();
+        vis.theMap.scrollWheelZoom.enable();
+        vis.theMap.doubleClickZoom.enable();
+        vis.theMap.boxZoom.enable();
+        vis.overlay.style('cursor', 'auto');
+        if (vis.buttonText == "Exit Selection Mode") {
+          if (vis.filterRectangle) {
+            vis.buttonText = "Clear Selection";
+          }
+          else {
+            vis.buttonText = "Enter Selection Mode";
+          }
+        }
+        else {
+          if (vis.filterRectangle) {
+            vis.theMap.removeLayer(vis.filterRectangle);
+            vis.filterRectangle = null;
+            vis.selectedBounds = vis.theMap.options.maxBounds;
+          }
+          vis.setFilteredDataAndUpdate(vis.timeFilteredData);
+          vis.buttonText = "Enter Selection Mode";
+        }
+      }
+      d3.select("#area-button").text(vis.buttonText);
     }
 }
