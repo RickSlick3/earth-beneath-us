@@ -179,7 +179,7 @@ class Heatmap {
                     filteredData = vis.data.filter(point => {
                         return selectedBins.some(bin => {
                             return point.mag >= bin.x0 && point.mag < bin.x1 &&
-                                   point.depth >= bin.y0 && point.depth < bin.y1;
+                                    point.depth >= bin.y0 && point.depth < bin.y1;
                         });
                     });
                 }
@@ -199,7 +199,8 @@ class Heatmap {
             .attr("dy", ".35em")
             .text(d => d.count)
             .style("fill", "black")
-            .style("font-size", "10px");
+            .style("font-size", "10px")
+            .style("pointer-events", "none"); // Prevent the text from capturing mouse events.
     }
 
     /**
