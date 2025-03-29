@@ -45,7 +45,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       yBins: 20,
       onBinSelection: filteredData => {
         // Update the map data when bin selection changes.
-        leafletMap.updateData(filteredData);
+        leafletMap.setFilteredDataAndUpdate(filteredData);
       }
     }, subsetData);
 
@@ -54,7 +54,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       subsetData,
       filteredData => {
         leafletMap.setFilteredDataAndUpdate(filteredData);
-        heatmap.setFilteredDataAndUpdate(filteredData);
+        heatmap.updateData(filteredData);
       });
   })
   .catch(error => console.error(error));
