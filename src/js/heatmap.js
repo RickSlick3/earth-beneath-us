@@ -10,6 +10,7 @@ class Heatmap {
      * @param {Object} _config.margin - Margin object with {top, right, bottom, left}.
      * @param {number} _config.xBins - Number of bins along the magnitude axis.
      * @param {number} _config.yBins - Number of bins along the depth axis.
+     * @param {Function} [_config.onBinSelection] - Callback called with filtered data when bins are selected.
      * @param {Array} _data - Data array (each object must have numeric attributes 'mag' and 'depth').
      */
     constructor(_config, _data) {
@@ -19,9 +20,11 @@ class Heatmap {
             height: _config.height || 500,
             margin: _config.margin || { top: 20, right: 20, bottom: 40, left: 40 },
             xBins: _config.xBins || 20,
-            yBins: _config.yBins || 20
+            yBins: _config.yBins || 20,
+            onBinSelection: _config.onBinSelection || function(filteredData) { }
         };
         this.data = _data;
+        // We'll store the original (unfiltered) data here.
         this.initVis();
     }
 
@@ -105,6 +108,7 @@ class Heatmap {
 
         // Create an array to store each 2D bin.
         vis.bins = [];
+        // Initialize each bin with a selected flag set to false.
         for (let i = 0; i < vis.xThresholds.length - 1; i++) {
             for (let j = 0; j < vis.yThresholds.length - 1; j++) {
                 vis.bins.push({
@@ -112,7 +116,8 @@ class Heatmap {
                     x1: vis.xThresholds[i + 1],
                     y0: vis.yThresholds[j],
                     y1: vis.yThresholds[j + 1],
-                    count: 0
+                    count: 0,
+                    selected: false
                 });
             }
         }
@@ -129,12 +134,10 @@ class Heatmap {
                     return d.depth >= threshold && d.depth < vis.yThresholds[j + 1];
                 }
             });
-            // If a data point equals the max value, assign it to the last bin.
             if (d.mag === vis.xThresholds[vis.xThresholds.length - 1])
                 xBin = vis.xThresholds.length - 2;
             if (d.depth === vis.yThresholds[vis.yThresholds.length - 1])
                 yBin = vis.yThresholds.length - 2;
-
             if (xBin >= 0 && yBin >= 0) {
                 let binIndex = xBin * (vis.yThresholds.length - 1) + yBin;
                 vis.bins[binIndex].count += 1;
@@ -152,7 +155,7 @@ class Heatmap {
         let gap = 4;
 
         // Draw the heatmap as rectangles.
-        vis.chart.selectAll(".heat-rect")
+        let binRects = vis.chart.selectAll(".heat-rect")
             .data(vis.bins)
             .enter()
             .append("rect")
@@ -161,7 +164,35 @@ class Heatmap {
             .attr("y", d => vis.yScale(d.y1) + gap / 2)
             .attr("width", d => (vis.xScale(d.x1) - vis.xScale(d.x0)) - gap)
             .attr("height", d => (vis.yScale(d.y0) - vis.yScale(d.y1)) - gap)
-            .attr("fill", d => vis.heatColor(d.count));
+            .attr("fill", d => vis.heatColor(d.count))
+            // Attach a click event to toggle bin selection.
+            .on("click", function(event, d) {
+                // Prevent propagation (in case other events are attached)
+                event.stopPropagation();
+                // Toggle selected state.
+                d.selected = !d.selected;
+                // Update visual style: add a black stroke if selected.
+                d3.select(this)
+                    .attr("stroke", d.selected ? "black" : "none")
+                    .attr("stroke-width", d.selected ? 2 : 0);
+                // Recompute filtered data based on selected bins.
+                let selectedBins = vis.bins.filter(bin => bin.selected);
+                let filteredData;
+                if (selectedBins.length === 0) {
+                    // If no bins are selected, use all data (the data filtered by the brushing area).
+                    filteredData = vis.data;
+                } else {
+                    // Otherwise, filter the data to only those points that fall in at least one selected bin.
+                    filteredData = vis.data.filter(point => {
+                        return selectedBins.some(bin => {
+                            return point.mag >= bin.x0 && point.mag < bin.x1 &&
+                                   point.depth >= bin.y0 && point.depth < bin.y1;
+                        });
+                    });
+                }
+                // Call the onBinSelection callback to update the map.
+                vis.config.onBinSelection(filteredData);
+            });
 
         // Append text labels on top of each bin.
         vis.chart.selectAll(".heat-label")

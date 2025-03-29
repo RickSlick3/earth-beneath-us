@@ -36,13 +36,17 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     leafletMap = new LeafletMap({ parentElement: '#my-map'}, subsetData);
 
     const heatmap = new Heatmap({
-      parentElement: "#heatmap",  // make sure to have a container with this id in your HTML
+      parentElement: "#heatmap",
       width: 500,
       height: 500,
       margin: { top: 20, right: 20, bottom: 40, left: 40 },
       xBins: 20,
-      yBins: 20
-    }, subsetData);
+      yBins: 20,
+      onBinSelection: filteredData => {
+          // update the map data when bin selection changes
+          leafletMap.updateData(filteredData);
+      }
+  }, subsetData);
     
     areaChart = new AreaChart({ parentElement: '#context' },
       subsetData,
