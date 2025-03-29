@@ -95,6 +95,9 @@ class AreaChart {
             .attr('class', 'brush x-brush')
             .call(vis.brush);
 
+        vis.xAxisG.raise();
+        vis.yAxisG.raise();
+
         vis.updateVis();
     }
 
