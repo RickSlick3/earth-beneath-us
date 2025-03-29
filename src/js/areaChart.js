@@ -131,11 +131,15 @@ class AreaChart {
         // Define the default brush selection.
         // For instance, to start the brush at Jan 1, 2025:
         const defaultBrushSelection = [this.xScale(new Date('2025-01-01')), this.xScale.range()[1]];
+        
+        if (!vis.brushSelection) {
+          vis.brushSelection = defaultBrushSelection;
+        }
 
         // Apply the brush and move it to the default selection.
         this.brushG
             .call(this.brush)
-            .call(this.brush.move, defaultBrushSelection);
+            .call(this.brush.move, vis.brushSelection);
     }
 
 
@@ -147,6 +151,7 @@ class AreaChart {
         let vis = this;
         
         if (selection) {
+            vis.brushSelection = selection;
             const startDate = vis.xScale.invert(selection[0]);
             const endDate = vis.xScale.invert(selection[1]);
             const filteredData = vis.data.filter(d => d.date >= startDate && d.date <= endDate);

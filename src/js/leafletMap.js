@@ -98,7 +98,7 @@ class LeafletMap {
 
             // Zoom to the selected area
             vis.theMap.fitBounds(vis.selectedBounds);
-            vis.updateData();
+            vis.setAreaFilteredDataAndUpdate();
 
             // Reset selection
             startPoint = null;
@@ -211,10 +211,19 @@ class LeafletMap {
 
     }
 
-    setFilteredDataAndUpdate(newData) {
+    setAreaFilteredDataAndUpdate() {
       let vis = this;
-      vis.timeFilteredData = newData;
-      vis.filteredData = vis.timeFilteredData;
+      vis.areaFilteredData = vis.data.filter(x => {
+        let latlng = {lat: x.latitude, lng: x.longitude};
+        return vis.selectedBounds.contains(latlng);
+      });
+      vis.onFilterCallback(vis.areaFilteredData);
+    }
+
+    setTimeFilteredDataAndUpdate(newData) {
+      let vis = this;
+      vis.filteredData = newData;
+      console.log(vis.filteredData);
       vis.updateData();
     }
 
@@ -223,12 +232,6 @@ class LeafletMap {
     updateData() {
         let vis = this;
 
-        vis.filteredData = vis.filteredData.filter(x => {
-          let latlng = {lat: x.latitude, lng: x.longitude};
-          return vis.selectedBounds.contains(latlng);
-        });
-
-        vis.onFilterCallback(vis.filteredData);
 
         // variable to set the radius of the dots
         vis.radius = vis.theMap.getZoom() * 2;
@@ -515,7 +518,7 @@ class LeafletMap {
             vis.filterRectangle = null;
             vis.selectedBounds = vis.theMap.options.maxBounds;
           }
-          vis.setFilteredDataAndUpdate(vis.timeFilteredData);
+          vis.setAreaFilteredDataAndUpdate();
           vis.buttonText = "Enter Selection Mode";
         }
       }

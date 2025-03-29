@@ -171,20 +171,8 @@ class Heatmap {
                     .attr("stroke", d.selected ? "black" : "none")
                     .attr("stroke-width", d.selected ? 2 : 0);
                 // Recompute filtered data based on selected bins.
-                let selectedBins = vis.bins.filter(bin => bin.selected);
-                let filteredData;
-                if (selectedBins.length === 0) {
-                    filteredData = vis.data;
-                } else {
-                    filteredData = vis.data.filter(point => {
-                        return selectedBins.some(bin => {
-                            return point.mag >= bin.x0 && point.mag < bin.x1 &&
-                                    point.depth >= bin.y0 && point.depth < bin.y1;
-                        });
-                    });
-                }
-                // Call the onBinSelection callback to update the map.
-                vis.config.onBinSelection(filteredData);
+                vis.selectedBins = vis.bins.filter(bin => bin.selected);
+                vis.filterBinData();
             });
 
         // Append text labels on top of each bin.
@@ -211,7 +199,7 @@ class Heatmap {
     updateData(newData) {
         let vis = this;
         // Clear any previous bin selections.
-        vis.clearSelections();
+        //vis.clearSelections();
         // Update the data.
         vis.data = newData;
         // Reset bin counts.
@@ -241,6 +229,8 @@ class Heatmap {
         vis.maxCount = d3.max(vis.bins, d => d.count);
         vis.heatColor.domain([0, vis.maxCount]);
 
+        vis.filterBinData();
+
         // Update rectangle fill colors.
         vis.chart.selectAll(".heat-rect")
             .data(vis.bins)
@@ -265,5 +255,20 @@ class Heatmap {
         vis.chart.selectAll(".heat-rect")
             .attr("stroke", "none")
             .attr("stroke-width", 0);
+    }
+
+    filterBinData() {
+      let vis = this;
+      if (!vis.selectedBins || vis.selectedBins.length === 0) {
+        vis.filteredData = vis.data;
+      } else {
+        vis.filteredData = vis.data.filter(point => {
+          return vis.selectedBins.some(bin => {
+            return point.mag >= bin.x0 && point.mag < bin.x1 &&
+              point.depth >= bin.y0 && point.depth < bin.y1;
+          });
+        });
+      }
+      vis.config.onBinSelection(vis.filteredData);
     }
 }

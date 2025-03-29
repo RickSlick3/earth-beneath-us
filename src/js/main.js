@@ -16,6 +16,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     });
 
     const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 8000); // 3116 gives only 2025 data
+    let filteredAreaData = subsetData;
+    let filteredDataFinal = subsetData;
 
     // Create a frequency map where the key is the time (in milliseconds)
     // and the value is the count of earthquakes on that day.
@@ -35,7 +37,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     // Initialize the map.
     leafletMap = new LeafletMap({ parentElement: '#my-map' }, subsetData,
       filteredData => {
-        heatmap.updateData(filteredData);
+        areaChart.data = filteredData;
+        areaChart.updateVis();
       }
     );
 
@@ -49,7 +52,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       yBins: 20,
       onBinSelection: filteredData => {
         // Update the map data when bin selection changes.
-        leafletMap.setFilteredDataAndUpdate(filteredData);
+        leafletMap.setTimeFilteredDataAndUpdate(filteredData);
       }
     }, subsetData);
 
@@ -57,8 +60,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     areaChart = new AreaChart({ parentElement: '#context' },
       subsetData,
       filteredData => {
-        leafletMap.setFilteredDataAndUpdate(filteredData);
-        //heatmap.updateData(filteredData);
+        leafletMap.setTimeFilteredDataAndUpdate(filteredData);
+        heatmap.updateData(filteredData);
       });
   })
   .catch(error => console.error(error));
