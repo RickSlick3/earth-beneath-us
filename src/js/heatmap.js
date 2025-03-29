@@ -24,7 +24,6 @@ class Heatmap {
             onBinSelection: _config.onBinSelection || function(filteredData) { }
         };
         this.data = _data;
-        // We'll store the original (unfiltered) data here.
         this.initVis();
     }
 
@@ -106,9 +105,8 @@ class Heatmap {
         vis.xThresholds = xTicks;
         vis.yThresholds = yTicks;
 
-        // Create an array to store each 2D bin.
+        // Create an array to store each 2D bin and initialize selection flag to false.
         vis.bins = [];
-        // Initialize each bin with a selected flag set to false.
         for (let i = 0; i < vis.xThresholds.length - 1; i++) {
             for (let j = 0; j < vis.yThresholds.length - 1; j++) {
                 vis.bins.push({
@@ -165,13 +163,10 @@ class Heatmap {
             .attr("width", d => (vis.xScale(d.x1) - vis.xScale(d.x0)) - gap)
             .attr("height", d => (vis.yScale(d.y0) - vis.yScale(d.y1)) - gap)
             .attr("fill", d => vis.heatColor(d.count))
-            // Attach a click event to toggle bin selection.
+            // Make bins clickable: toggle selection and update styling.
             .on("click", function(event, d) {
-                // Prevent propagation (in case other events are attached)
                 event.stopPropagation();
-                // Toggle selected state.
                 d.selected = !d.selected;
-                // Update visual style: add a black stroke if selected.
                 d3.select(this)
                     .attr("stroke", d.selected ? "black" : "none")
                     .attr("stroke-width", d.selected ? 2 : 0);
@@ -179,10 +174,8 @@ class Heatmap {
                 let selectedBins = vis.bins.filter(bin => bin.selected);
                 let filteredData;
                 if (selectedBins.length === 0) {
-                    // If no bins are selected, use all data (the data filtered by the brushing area).
                     filteredData = vis.data;
                 } else {
-                    // Otherwise, filter the data to only those points that fall in at least one selected bin.
                     filteredData = vis.data.filter(point => {
                         return selectedBins.some(bin => {
                             return point.mag >= bin.x0 && point.mag < bin.x1 &&
@@ -216,6 +209,8 @@ class Heatmap {
      */
     updateData(newData) {
         let vis = this;
+        // Clear any previous bin selections.
+        vis.clearSelections();
         // Update the data.
         vis.data = newData;
         // Reset bin counts.
@@ -256,5 +251,18 @@ class Heatmap {
             .data(vis.bins)
             .transition().duration(500)
             .text(d => d.count);
+    }
+
+    /**
+     * Clears any bin selections and resets the visual styling.
+     */
+    clearSelections() {
+        let vis = this;
+        vis.bins.forEach(bin => {
+            bin.selected = false;
+        });
+        vis.chart.selectAll(".heat-rect")
+            .attr("stroke", "none")
+            .attr("stroke-width", 0);
     }
 }
