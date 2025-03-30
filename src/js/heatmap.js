@@ -103,7 +103,7 @@ class Heatmap {
         yAxisGroup.append("text")
             .attr("transform", "rotate(-90)")
             .attr("x", -vis.innerHeight / 2)
-            .attr("y", -30)
+            .attr("y", -35)
             .attr("fill", "black")
             .attr("text-anchor", "middle")
             .text("Depth (km)");
