@@ -5,7 +5,7 @@ class LeafletMap {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _data, onFilterCallback) {
+    constructor(_config, _data, onFilterCallback, onAnimationDisableBrush, onAnimationEnableBrush) {        
         this.config = {
             parentElement: _config.parentElement,
             mapHeight: _config.mapHeight || 500, // Height of the map
@@ -17,6 +17,8 @@ class LeafletMap {
         this.selectionMode = false;
         this.filterRectangle = null;
         this.onFilterCallback = onFilterCallback;
+        this.onAnimationDisableBrush = onAnimationDisableBrush;
+        this.onAnimationEnableBrush = onAnimationEnableBrush;
         this.isAnimating = false; // true while animation is playing
         this.initVis();
     }
@@ -658,19 +660,12 @@ class LeafletMap {
         // Turn on animation mode so new circles start at opacity 0
         vis.isAnimating = true;
 
+        if (vis.onAnimationDisableBrush) {
+            vis.onAnimationDisableBrush();
+        }
+
         // Update button text to "Stop Animation"
         d3.select("#animate-button").text("Stop Animation");
-
-        // Hide heatmap and area chart while animation is running
-        let heatmap = d3.select("#heatmap");
-        if (heatmap.style("display") === "block") {
-            heatmap.style("display", "none");
-        }
-
-        let areaChart = d3.select("#area-chart");
-        if (areaChart.style("display") === "block") {
-            areaChart.style("display", "none");
-        }
 
         // Store the current filtered data so we can restore it later
         const originalData = vis.filteredData;
@@ -719,6 +714,10 @@ class LeafletMap {
             // reset button and selector
             d3.select("#animate-button").text("Animate Days"); // Reset button text
             d3.select("#animation-speed").property("selectedIndex", 0);
+
+            if (vis.onAnimationEnableBrush) {
+                vis.onAnimationEnableBrush();
+            }
         }
     }
 

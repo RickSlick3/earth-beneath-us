@@ -35,11 +35,14 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     console.log('subset data: ', subsetData);
 
     // Initialize the map.
-    leafletMap = new LeafletMap({ parentElement: '#my-map' }, subsetData,
+    leafletMap = new LeafletMap({ parentElement: '#my-map' }, 
+      subsetData,
       filteredData => {
         areaChart.data = filteredData;
         areaChart.updateVis();
-      }
+      },
+      disableBrush,
+      enableBrush
     );
 
     let xDomain = d3.extent(subsetData, d => d.mag);
@@ -68,5 +71,14 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
         leafletMap.setTimeFilteredDataAndUpdate(filteredData);
         heatmap.updateData(filteredData);
       });
+
+    function disableBrush() {
+      areaChart.canBrush = false;
+      areaChart.toggleBrushPointerEvents();
+    }
+    function enableBrush() {
+      areaChart.canBrush = true;
+      areaChart.toggleBrushPointerEvents();
+    }
   })
   .catch(error => console.error(error));

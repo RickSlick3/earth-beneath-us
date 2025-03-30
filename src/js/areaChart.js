@@ -16,6 +16,7 @@ class AreaChart {
         this.data = _data;
         this.onBrushCallback = onBrushCallback; // Called when brush selection changes.
         this.maxBrushWidth = 200; // Maximum width of the brush selection in pixels
+        this.canBrush = true; // Flag to indicate if brushing is enabled
         this.initVis();
     }
 
@@ -76,6 +77,10 @@ class AreaChart {
 
         // Create brush
         vis.brush = d3.brushX()
+        .filter((event) => {
+            // If canBrush is false, ignore brush events
+            return vis.canBrush && !event.ctrlKey && event.button === 0;
+        })
         .extent([[0, 0], [vis.config.contextWidth, vis.config.contextHeight]])
         .on('brush', ({ selection }) => {
             if (selection) {
@@ -160,6 +165,22 @@ class AreaChart {
             vis.onBrushCallback(filteredData);
         } else {
             vis.onBrushCallback(vis.data);
+        }
+    }
+
+    toggleBrushPointerEvents() {
+        let vis = this;
+        const overlay = document.querySelector('.overlay');
+        if (vis.canBrush) {
+            // Turn on pointer events
+            d3.select(vis.brushG.node())
+                .style("pointer-events", "all");
+                overlay.style.cursor = 'crosshair'; // Change cursor to indicate brushing is enabled
+        } else {
+            // Turn them off
+            d3.select(vis.brushG.node())
+                .style("pointer-events", "none");
+                overlay.style.cursor = 'not-allowed'; // Change cursor to indicate brushing is disabled
         }
     }
 }
