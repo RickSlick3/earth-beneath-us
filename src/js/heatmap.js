@@ -243,13 +243,13 @@ class Heatmap {
         // Update rectangle fill colors.
         vis.chart.selectAll(".heat-rect")
             .data(vis.bins)
-            .transition().duration(500)
+            .transition().duration(200)
             .attr("fill", d => vis.heatColor(d.count));
 
         // Update text labels.
         vis.chart.selectAll(".heat-label")
             .data(vis.bins)
-            .transition().duration(500)
+            .transition().duration(200)
             .text(d => d.count);
     }
 
