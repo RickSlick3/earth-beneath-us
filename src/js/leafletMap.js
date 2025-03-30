@@ -478,7 +478,7 @@ class LeafletMap {
             .style("top", "10px")        // Adjust vertical position as needed
             .style("width", "140px")
             .style("background-color", "white")
-            .style("padding", "15px 15px")
+            .style("padding", "5px")
             .style("border", "1px solid black")
             .style("border-radius", "5px")
             .style("flex-grow", "1")
@@ -487,6 +487,64 @@ class LeafletMap {
             .on("click", function() {
               vis.toggleSelectionArea();
             });
+        L.DomEvent.disableClickPropagation(vis.areaSelectButton.node()); // Disable additional click propagation
+
+        // Toggle Area Chart Display Button
+        vis.toggleChartButton = d3.select("div.leaflet-top.leaflet-left")
+            .append("button")
+            .attr("id", "toggle-area-chart-button")
+            .text("Toggle Brushing")
+            .style("position", "absolute")
+            .style("left", "195px")   // Adjust horizontal position as needed
+            .style("top", "10px")    // Adjust vertical position so it doesn't overlap other buttons
+            .style("width", "120px")
+            .style("background-color", "white")
+            .style("padding", "5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style('pointer-events', 'all') // allow pointer events
+            .style("cursor", "pointer")
+            .on("click", function() {
+                let chart = d3.select("#area-chart");
+                if (chart.style("display") === "none") {
+                    chart.style("display", "block");
+                    d3.select(this).text("Hide Area Chart");
+                } else {
+                    chart.style("display", "none");
+                    d3.select(this).text("Show Area Chart");
+                }
+            });
+        L.DomEvent.disableClickPropagation(vis.toggleChartButton.node()); // Disable additional click propagation
+
+        // Toggle Heatmap Display Button
+        vis.toggleHeatmapButton = d3.select("div.leaflet-top.leaflet-left")
+            .append("button")
+            .attr("id", "toggle-heatmap-button")
+            .text("Toggle Heatmap")
+            .style("position", "absolute")
+            .style("left", "320px")    // Adjust horizontal position as needed
+            .style("top", "10px")   // Adjust vertical position so it doesn't overlap other controls
+            .style("width", "140px")
+            .style("background-color", "white")
+            .style("padding", "5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style('pointer-events', 'all') // allow pointer events
+            .style("cursor", "pointer")
+            .on("click", function(event) {
+                // Prevent the click event from affecting the map
+                event.stopPropagation();
+
+                let heatmap = d3.select("#heatmap");
+                if (heatmap.style("display") === "none") {
+                    heatmap.style("display", "block");
+                    d3.select(this).text("Hide Heatmap");
+                } else {
+                    heatmap.style("display", "none");
+                    d3.select(this).text("Show Heatmap");
+                }
+            });
+        L.DomEvent.disableClickPropagation(vis.toggleHeatmapButton.node()); // Disable additional click propagation
     }
 
     toggleSelectionArea() {

@@ -45,8 +45,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     // Instantiate the heatmap with an onBinSelection callback.
     const heatmap = new Heatmap({
       parentElement: "#heatmap",  // Ensure your HTML has a container with id "heatmap"
-      width: 500,
-      height: 500,
+      width: 400,
+      height: 400,
       margin: { top: 20, right: 20, bottom: 40, left: 40 },
       xBins: 20,
       yBins: 20,
@@ -57,7 +57,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     }, subsetData);
 
     // Instantiate the area chart and update both the map and heatmap on brush changes.
-    areaChart = new AreaChart({ parentElement: '#context' },
+    areaChart = new AreaChart({ parentElement: '#area-chart' },
       subsetData,
       filteredData => {
         leafletMap.setTimeFilteredDataAndUpdate(filteredData);

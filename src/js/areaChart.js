@@ -33,8 +33,9 @@ class AreaChart {
         vis.svg = d3.select(vis.config.parentElement)
             .attr('width', containerWidth)
             .attr('height', containerHeight)
-            .style('background-color', 'white'); // Optional: Set a background color for visibility
-
+            .style("border", "1px solid black")
+            .style("border-radius", "5px");
+            
         // Append a group for the chart.
         vis.context = vis.svg.append('g')
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);

@@ -37,7 +37,10 @@ class Heatmap {
         vis.svg = d3.select(vis.config.parentElement)
             .append("svg")
             .attr("width", vis.config.width)
-            .attr("height", vis.config.height);
+            .attr("height", vis.config.height)
+            .style("background-color", "rgba(255, 255, 255, 0.5)")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px");
 
         vis.chart = vis.svg.append("g")
             .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top})`);
@@ -94,7 +97,7 @@ class Heatmap {
         yAxisGroup.append("text")
             .attr("transform", "rotate(-90)")
             .attr("x", -vis.innerHeight / 2)
-            .attr("y", -35)
+            .attr("y", -30)
             .attr("fill", "black")
             .attr("text-anchor", "middle")
             .text("Depth (km)");
