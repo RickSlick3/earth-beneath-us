@@ -49,7 +49,8 @@ class LeafletMap {
             id: 'esri-image',
             attribution: vis.esriAttr,
             ext: 'png',
-            noWrap: true  // This disables the tile wrapping, using maxBounds below looks better
+            noWrap: true,  // This disables the tile wrapping, using maxBounds below looks better
+            bounds: [[-90, -180], [90, 180]]  // Only load tiles within these bounds.
         });
 
         vis.theMap = L.map('my-map', {
@@ -58,7 +59,7 @@ class LeafletMap {
             minZoom: 1,
             maxZoom: 7,
             layers: [vis.base_layer],
-            maxBounds: [[-90, -180], [90, 180]],  // Restrict panning to world bounds
+            maxBounds: [[-90, -185], [90, 185]],  // Restrict panning to world bounds
         });
 
         let startPoint = null; // Store start point of the selection
@@ -313,9 +314,11 @@ class LeafletMap {
             .attr("width", 30)
             .attr("height", 205)
             .style("position", "absolute")
-            .style("left", "-45px")
-            .style("top", "5px")
+            .style("left", "-50px")
+            .style("top", "10px")
             .style("padding", "5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
             .style("background-color", "white");
 
         // Append a defs element for the gradient.
@@ -373,8 +376,8 @@ class LeafletMap {
             .append("div")
             .attr("id", "button-container")
             .style("position", "absolute")
-            .style("left", "-135px")      // Adjust horizontal position as needed
-            .style("top", "420px")        // Adjust vertical position as needed
+            .style("left", "-190px")      // Adjust horizontal position as needed
+            .style("top", "10px")        // Adjust vertical position as needed
             .style("width", "120px")
             .style("background-color", "white")
             .style("padding", "5px 5px 0 5px")

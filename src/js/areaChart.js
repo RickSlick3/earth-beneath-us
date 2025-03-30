@@ -32,7 +32,8 @@ class AreaChart {
         // Create the main SVG container.
         vis.svg = d3.select(vis.config.parentElement)
             .attr('width', containerWidth)
-            .attr('height', containerHeight);
+            .attr('height', containerHeight)
+            .style('background-color', 'white'); // Optional: Set a background color for visibility
 
         // Append a group for the chart.
         vis.context = vis.svg.append('g')
@@ -130,7 +131,7 @@ class AreaChart {
 
         // Define the default brush selection.
         // For instance, to start the brush at Jan 1, 2025:
-        const defaultBrushSelection = [this.xScale(new Date('2025-01-01')), this.xScale.range()[1]];
+        const defaultBrushSelection = [this.xScale(new Date('2025-03-01')), this.xScale.range()[1]];
         
         if (!vis.brushSelection) {
           vis.brushSelection = defaultBrushSelection;
