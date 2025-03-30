@@ -38,7 +38,7 @@ class Heatmap {
             .append("svg")
             .attr("width", vis.config.width)
             .attr("height", vis.config.height)
-            .style("background-color", "rgba(255, 255, 255, 0.5)")
+            .style("background-color", "rgba(255, 255, 255, 0.6)")
             .style("border", "1px solid black")
             .style("border-radius", "5px");
 
