@@ -5,7 +5,7 @@ class LeafletMap {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _data, onFilterCallback, onAnimationDisableBrush, onAnimationEnableBrush, onDayCallback, onDayHeatmapUpdate) {        
+    constructor(_config, _data, onFilterCallback, onAnimationDisableInteraction, onAnimationEnableInteraction, onDayCallback, onDayHeatmapUpdate) {        
         this.config = {
             parentElement: _config.parentElement,
             mapHeight: _config.mapHeight || 500, // Height of the map
@@ -17,8 +17,8 @@ class LeafletMap {
         this.selectionMode = false;
         this.filterRectangle = null;
         this.onFilterCallback = onFilterCallback;
-        this.onAnimationDisableBrush = onAnimationDisableBrush;
-        this.onAnimationEnableBrush = onAnimationEnableBrush;
+        this.onAnimationDisableInteraction = onAnimationDisableInteraction;
+        this.onAnimationEnableInteraction = onAnimationEnableInteraction;
         this.onDayCallback = onDayCallback;        
         this.onDayHeatmapUpdate = onDayHeatmapUpdate;
         this.isAnimating = false; // true while animation is playing
@@ -662,8 +662,8 @@ class LeafletMap {
         // Turn on animation mode so new circles start at opacity 0
         vis.isAnimating = true;
 
-        if (vis.onAnimationDisableBrush) {
-            vis.onAnimationDisableBrush();
+        if (vis.onAnimationDisableInteraction) {
+            vis.onAnimationDisableInteraction();
         }
 
         // Update button text to "Stop Animation"
@@ -726,8 +726,8 @@ class LeafletMap {
             d3.select("#animation-speed").property("selectedIndex", 0);
 
             // callbacks
-            if (vis.onAnimationEnableBrush) {
-                vis.onAnimationEnableBrush();
+            if (vis.onAnimationEnableInteraction) {
+                vis.onAnimationEnableInteraction();
             }
             if (this.onDayHeatmapUpdate) {
                 // revert heatmap to the full dataset or whatever you prefer

@@ -47,8 +47,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
         areaChart.data = filteredData;
         areaChart.updateVis();
       },
-      disableBrush,
-      enableBrush,
+      disableInteraction,
+      enableInteraction,
       onDayCallback = onAnimationDayChanged,
       onDayHeatmapUpdate = onAnimationDayHeatmapUpdate
     );
@@ -79,14 +79,17 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       });
 
     // Callback functions
-    function disableBrush() {
+    function disableInteraction() {
       areaChart.canBrush = false;
       areaChart.toggleBrushPointerEvents();
+      heatmap.disableBinClicks();
     }
-    function enableBrush() {
+    function enableInteraction() {
       areaChart.canBrush = true;
       areaChart.toggleBrushPointerEvents();
+      heatmap.enableBinClicks();
     }
+    
     function onAnimationDayChanged(date) {
       // If date is a string like '2025-01-12', parse it
       // or if you already have a Date object, just pass it through

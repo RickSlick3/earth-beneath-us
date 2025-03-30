@@ -172,6 +172,7 @@ class Heatmap {
             .attr("width", d => (vis.xScale(d.x1) - vis.xScale(d.x0)) - gap)
             .attr("height", d => (vis.yScale(d.y0) - vis.yScale(d.y1)) - gap)
             .attr("fill", d => vis.heatColor(d.count))
+            .style("cursor", "pointer")
             // Make bins clickable: toggle selection and update styling.
             .on("click", function(event, d) {
                 event.stopPropagation();
@@ -279,5 +280,19 @@ class Heatmap {
         });
       }
       vis.config.onBinSelection(vis.filteredData);
+    }
+
+    // disable interaction with heatmap bins during animation
+    disableBinClicks() {
+        // Turn off pointer events for all the heatmap rectangles
+        d3.selectAll('.heat-rect')
+            .style('pointer-events', 'none')
+            .style("cursor", "not-allowed");
+    }
+    enableBinClicks() {
+        // Turn pointer events back on
+        d3.selectAll('.heat-rect')
+            .style('pointer-events', 'all')
+            .style("cursor", "pointer");
     }
 }
