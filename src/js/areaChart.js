@@ -11,7 +11,7 @@ class AreaChart {
             parentElement: _config.parentElement, // e.g., "#context"
             contextWidth: _config.contextWidth || 1000,
             contextHeight: _config.contextHeight || 100,
-            margin: _config.margin || { top: 10, right: 40, bottom: 20, left: 40 }
+            margin: _config.margin || { top: 10, right: 20, bottom: 20, left: 45 }
         };
         this.data = _data;
         this.onBrushCallback = onBrushCallback; // Called when brush selection changes.
