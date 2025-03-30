@@ -43,7 +43,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       },
       disableBrush,
       enableBrush,
-      onDayCallback = onAnimationDayChanged
+      onDayCallback = onAnimationDayChanged,
+      onDayHeatmapUpdate = onAnimationDayHeatmapUpdate
     );
 
     let xDomain = d3.extent(subsetData, d => d.mag);
@@ -73,6 +74,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
         heatmap.updateData(filteredData);
       });
 
+    // Callback functions
     function disableBrush() {
       areaChart.canBrush = false;
       areaChart.toggleBrushPointerEvents();
@@ -85,6 +87,10 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       // If date is a string like '2025-01-12', parse it
       // or if you already have a Date object, just pass it through
       areaChart.setAnimationDateLine(date);
+    }
+    function onAnimationDayHeatmapUpdate(dayRecords) {
+      // This line ensures the heatmap is recalculated *only* for these dayRecords
+      heatmap.updateData(dayRecords);
     }
   })
   .catch(error => console.error(error));

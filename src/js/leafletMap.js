@@ -5,7 +5,7 @@ class LeafletMap {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _data, onFilterCallback, onAnimationDisableBrush, onAnimationEnableBrush, onDayCallback) {        
+    constructor(_config, _data, onFilterCallback, onAnimationDisableBrush, onAnimationEnableBrush, onDayCallback, onDayHeatmapUpdate) {        
         this.config = {
             parentElement: _config.parentElement,
             mapHeight: _config.mapHeight || 500, // Height of the map
@@ -20,6 +20,7 @@ class LeafletMap {
         this.onAnimationDisableBrush = onAnimationDisableBrush;
         this.onAnimationEnableBrush = onAnimationEnableBrush;
         this.onDayCallback = onDayCallback;        
+        this.onDayHeatmapUpdate = onDayHeatmapUpdate;
         this.isAnimating = false; // true while animation is playing
         this.initVis();
     }
@@ -699,10 +700,12 @@ class LeafletMap {
                 vis.filteredData = records;
                 vis.updateData();
 
-                let date = d3.timeParse("%Y-%m-%d")(dayString);
-                // Then call the callback
                 if (this.onDayCallback) {
+                    let date = d3.timeParse("%Y-%m-%d")(dayString);
                     this.onDayCallback(date);
+                }
+                if (this.onDayHeatmapUpdate) {
+                    this.onDayHeatmapUpdate(records);
                 }
 
                 await this.fadeIn(cycleTime/2);
@@ -719,8 +722,13 @@ class LeafletMap {
             d3.select("#animate-button").text("Animate Days"); // Reset button text
             d3.select("#animation-speed").property("selectedIndex", 0);
 
+            // callbacks
             if (vis.onAnimationEnableBrush) {
                 vis.onAnimationEnableBrush();
+            }
+            if (this.onDayHeatmapUpdate) {
+                // revert heatmap to the full dataset or whatever you prefer
+                this.onDayHeatmapUpdate(originalData);
             }
         }
     }
