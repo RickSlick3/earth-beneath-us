@@ -42,7 +42,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
         areaChart.updateVis();
       },
       disableBrush,
-      enableBrush
+      enableBrush,
+      onDayCallback = onAnimationDayChanged
     );
 
     let xDomain = d3.extent(subsetData, d => d.mag);
@@ -79,6 +80,11 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     function enableBrush() {
       areaChart.canBrush = true;
       areaChart.toggleBrushPointerEvents();
+    }
+    function onAnimationDayChanged(date) {
+      // If date is a string like '2025-01-12', parse it
+      // or if you already have a Date object, just pass it through
+      areaChart.setAnimationDateLine(date);
     }
   })
   .catch(error => console.error(error));

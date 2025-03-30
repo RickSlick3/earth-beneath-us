@@ -11,7 +11,7 @@ class AreaChart {
             parentElement: _config.parentElement, // e.g., "#context"
             contextWidth: _config.contextWidth || 1000,
             contextHeight: _config.contextHeight || 100,
-            margin: _config.margin || { top: 10, right: 20, bottom: 20, left: 45 }
+            margin: _config.margin || { top: 20, right: 30, bottom: 20, left: 45 }
         };
         this.data = _data;
         this.onBrushCallback = onBrushCallback; // Called when brush selection changes.
@@ -102,6 +102,23 @@ class AreaChart {
             .attr('class', 'brush x-brush')
             .call(vis.brush);
 
+        // This line will mark the "current date" in the animation
+        vis.animationLine = vis.context.append('line')
+            .attr('class', 'animation-date-line')
+            .attr('y1', 0)
+            .attr('y2', vis.config.contextHeight)
+            .attr('stroke', 'black')       // pick color
+            .attr('stroke-width', 2)
+            .style('display', 'none');    // hide by default
+
+        vis.animationDateLabel = vis.context.append('text')
+            .attr('class', 'animation-date-label')
+            .attr('text-anchor', 'middle')    // center the text horizontally on the line
+            .attr('dy', '-5')                 // move it slightly above the line
+            .style('font-size', '12px')
+            .style('fill', 'black')
+            .style('display', 'none');        // hidden until used
+
         vis.xAxisG.raise();
         vis.yAxisG.raise();
 
@@ -176,11 +193,45 @@ class AreaChart {
             d3.select(vis.brushG.node())
                 .style("pointer-events", "all");
                 overlay.style.cursor = 'crosshair'; // Change cursor to indicate brushing is enabled
+                vis.animationLine.style('display', 'none');
+                vis.animationDateLabel.style('display', 'none');
         } else {
             // Turn them off
             d3.select(vis.brushG.node())
                 .style("pointer-events", "none");
                 overlay.style.cursor = 'not-allowed'; // Change cursor to indicate brushing is disabled
         }
+    }
+
+    // Move the animation line to the given date (or hide if date == null).
+    setAnimationDateLine(date) {
+        let vis = this;
+    
+        if (!date) { // Hide the line if no date
+            vis.animationLine.style('display', 'none');
+            return;
+        }
+    
+        // Convert date to an x-position
+        const xPos = vis.xScale(date);
+    
+        // Show the line and set its x-coordinates
+        vis.animationLine
+            .style('display', 'block')
+            .attr('x1', xPos)
+            .attr('x2', xPos);
+
+        // Show the text label
+        vis.animationDateLabel
+            .style('display', 'block')
+            // Position it at the same X
+            .attr('x', xPos)
+            // Because we used .attr('dy', '-5') earlier, it sits above the line
+            // We can also set y explicitly if we prefer, e.g. `.attr('y', -5)`.
+            // But we'll rely on the initial .attr('dy','-5') and anchor it near the top.
+
+            // For the text, you can format the date any way you like:
+            // .text(d3.timeFormat("%b %d, %Y")(date));
+            .text(d3.timeFormat("%m/%d/%Y")(date));
     }
 }

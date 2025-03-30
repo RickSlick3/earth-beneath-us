@@ -5,7 +5,7 @@ class LeafletMap {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _data, onFilterCallback, onAnimationDisableBrush, onAnimationEnableBrush) {        
+    constructor(_config, _data, onFilterCallback, onAnimationDisableBrush, onAnimationEnableBrush, onDayCallback) {        
         this.config = {
             parentElement: _config.parentElement,
             mapHeight: _config.mapHeight || 500, // Height of the map
@@ -19,6 +19,7 @@ class LeafletMap {
         this.onFilterCallback = onFilterCallback;
         this.onAnimationDisableBrush = onAnimationDisableBrush;
         this.onAnimationEnableBrush = onAnimationEnableBrush;
+        this.onDayCallback = onDayCallback;        
         this.isAnimating = false; // true while animation is playing
         this.initVis();
     }
@@ -689,7 +690,7 @@ class LeafletMap {
         vis.updateData();
 
         try {
-            // Loop through each day, display for 1s, then move on
+            // Loop through each day
             for (const [dayString, records] of dataByDay) {
                 // If user clicked STOP mid-loop, exit immediately:
                 if (!vis.isAnimating) break;
@@ -698,8 +699,11 @@ class LeafletMap {
                 vis.filteredData = records;
                 vis.updateData();
 
-                // Wait 1 second
-                // await new Promise(resolve => setTimeout(resolve, 200));
+                let date = d3.timeParse("%Y-%m-%d")(dayString);
+                // Then call the callback
+                if (this.onDayCallback) {
+                    this.onDayCallback(date);
+                }
 
                 await this.fadeIn(cycleTime/2);
                 await new Promise(r => setTimeout(r, cycleTime));
