@@ -9,7 +9,7 @@ class AreaChart {
     constructor(_config, _data, onBrushCallback) {
         this.config = {
             parentElement: _config.parentElement, // e.g., "#context"
-            contextWidth: _config.contextWidth || 800,
+            contextWidth: _config.contextWidth || 1000,
             contextHeight: _config.contextHeight || 100,
             margin: _config.margin || { top: 10, right: 40, bottom: 20, left: 40 }
         };
@@ -35,7 +35,7 @@ class AreaChart {
             .attr('height', containerHeight)
             .style("border", "1px solid black")
             .style("border-radius", "5px");
-            
+
         // Append a group for the chart.
         vis.context = vis.svg.append('g')
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);

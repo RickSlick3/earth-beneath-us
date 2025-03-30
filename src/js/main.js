@@ -47,7 +47,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       parentElement: "#heatmap",  // Ensure your HTML has a container with id "heatmap"
       width: 400,
       height: 400,
-      margin: { top: 20, right: 20, bottom: 40, left: 40 },
+      margin: { top: 20, right: 20, bottom: 40, left: 50 },
       xBins: 20,
       yBins: 20,
       onBinSelection: filteredData => {
@@ -57,7 +57,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
     }, subsetData);
 
     // Instantiate the area chart and update both the map and heatmap on brush changes.
-    areaChart = new AreaChart({ parentElement: '#area-chart' },
+    areaChart = new AreaChart({ parentElement: '#area-chart', contextWidth: 850 },
       subsetData,
       filteredData => {
         leafletMap.setTimeFilteredDataAndUpdate(filteredData);

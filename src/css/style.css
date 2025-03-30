@@ -28,7 +28,7 @@ html, body {
 
 #heatmap {
   position: absolute;
-  bottom: 20px;
+  bottom: 16px;
   right: 10px;
   z-index: 1000;
   display: none;

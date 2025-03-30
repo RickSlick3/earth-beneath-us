@@ -56,10 +56,10 @@ class LeafletMap {
         vis.theMap = L.map('my-map', {
             center: [30, 0],
             zoom: 2,
-            minZoom: 1,
+            minZoom: 2,
             maxZoom: 7,
             layers: [vis.base_layer],
-            maxBounds: [[-90, -185], [90, 185]],  // Restrict panning to world bounds
+            maxBounds: [[-90, -360], [90, 360]],  // Restrict panning to world bounds
         });
 
         let startPoint = null; // Store start point of the selection
@@ -508,10 +508,8 @@ class LeafletMap {
                 let chart = d3.select("#area-chart");
                 if (chart.style("display") === "none") {
                     chart.style("display", "block");
-                    d3.select(this).text("Hide Area Chart");
                 } else {
                     chart.style("display", "none");
-                    d3.select(this).text("Show Area Chart");
                 }
             });
         L.DomEvent.disableClickPropagation(vis.toggleChartButton.node()); // Disable additional click propagation
@@ -538,10 +536,8 @@ class LeafletMap {
                 let heatmap = d3.select("#heatmap");
                 if (heatmap.style("display") === "none") {
                     heatmap.style("display", "block");
-                    d3.select(this).text("Hide Heatmap");
                 } else {
                     heatmap.style("display", "none");
-                    d3.select(this).text("Show Heatmap");
                 }
             });
         L.DomEvent.disableClickPropagation(vis.toggleHeatmapButton.node()); // Disable additional click propagation
