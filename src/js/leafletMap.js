@@ -716,7 +716,9 @@ class LeafletMap {
             // Animation is finished. Reset to original, full filtered data
             vis.filteredData = originalData;
             vis.updateData();
+            // reset button and selector
             d3.select("#animate-button").text("Animate Days"); // Reset button text
+            d3.select("#animation-speed").property("selectedIndex", 0);
         }
     }
 
