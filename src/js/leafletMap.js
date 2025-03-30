@@ -497,7 +497,7 @@ class LeafletMap {
             .style("position", "absolute")
             .style("left", "195px")   // Adjust horizontal position as needed
             .style("top", "10px")    // Adjust vertical position so it doesn't overlap other buttons
-            .style("width", "120px")
+            .style("width", "110px")
             .style("background-color", "white")
             .style("padding", "5px")
             .style("border", "1px solid black")
@@ -522,9 +522,9 @@ class LeafletMap {
             .attr("id", "toggle-heatmap-button")
             .text("Toggle Heatmap")
             .style("position", "absolute")
-            .style("left", "320px")    // Adjust horizontal position as needed
+            .style("left", "310px")    // Adjust horizontal position as needed
             .style("top", "10px")   // Adjust vertical position so it doesn't overlap other controls
-            .style("width", "140px")
+            .style("width", "110px")
             .style("background-color", "white")
             .style("padding", "5px")
             .style("border", "1px solid black")
