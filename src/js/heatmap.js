@@ -12,6 +12,8 @@ class Heatmap {
      * @param {number} _config.yBins - Number of bins along the depth axis.
      * @param {Function} [_config.onBinSelection] - Callback called with filtered data when bins are selected.
      * @param {Array} _data - Data array (each object must have numeric attributes 'mag' and 'depth').
+     * @param {Array} _config.xDom - Optional x domain for magnitude (e.g., [min, max]). If not provided, it will be calculated from the data.
+     * @param {Array} _config.yDom - Optional y domain for depth (e.g., [min, max]). If not provided, it will be calculated from the data.
      */
     constructor(_config, _data) {
         this.config = {
@@ -21,7 +23,9 @@ class Heatmap {
             margin: _config.margin || { top: 20, right: 20, bottom: 40, left: 40 },
             xBins: _config.xBins || 20,
             yBins: _config.yBins || 20,
-            onBinSelection: _config.onBinSelection || function(filteredData) { }
+            onBinSelection: _config.onBinSelection || function(filteredData) { },
+            xDom: _config.xDom || d3.extent(_data, d => d.mag), // Use provided x domain or calculate from data
+            yDom: _config.yDom || d3.extent(_data, d => d.depth) // Use provided y domain or calculate from data
         };
         this.data = _data;
         this.initVis();
@@ -46,8 +50,10 @@ class Heatmap {
             .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
         // Compute full extents for the data.
-        let xDomain = d3.extent(vis.data, d => d.mag);
-        let yDomain = d3.extent(vis.data, d => d.depth);
+        // let xDomain = d3.extent(vis.data, d => d.mag);
+        // let yDomain = d3.extent(vis.data, d => d.depth);
+        let xDomain = vis.config.xDom;
+        let yDomain = vis.config.yDom;
 
         // Round the maximum up to ensure all data are included.
         xDomain[1] = Math.ceil(xDomain[1]);

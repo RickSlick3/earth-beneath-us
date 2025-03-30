@@ -224,7 +224,7 @@ class LeafletMap {
     setTimeFilteredDataAndUpdate(newData) {
       let vis = this;
       vis.filteredData = newData;
-      console.log(vis.filteredData);
+      // console.log(vis.filteredData);
       vis.updateData();
     }
 

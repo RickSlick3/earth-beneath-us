@@ -42,6 +42,9 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       }
     );
 
+    let xDomain = d3.extent(subsetData, d => d.mag);
+    let yDomain = d3.extent(subsetData, d => d.depth);
+
     // Instantiate the heatmap with an onBinSelection callback.
     const heatmap = new Heatmap({
       parentElement: "#heatmap",  // Ensure your HTML has a container with id "heatmap"
@@ -50,6 +53,8 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       margin: { top: 20, right: 20, bottom: 40, left: 50 },
       xBins: 20,
       yBins: 20,
+      xDom: xDomain, // Use the xDomain from the data
+      yDom: yDomain, // Use the yDomain from the data
       onBinSelection: filteredData => {
         // Update the map data when bin selection changes.
         leafletMap.setTimeFilteredDataAndUpdate(filteredData);
