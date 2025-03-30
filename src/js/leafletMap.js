@@ -294,7 +294,7 @@ class LeafletMap {
     
                             d3.select('#tooltip').style('display', 'none'); // turn off the tooltip
                     }),
-                update => update, // keep dot
+                update => update.style("opacity", vis.isAnimating ? 0 : 1), // keep dot but update opacity
                 exit => exit.remove() // remove dot
             );
 
@@ -671,6 +671,7 @@ class LeafletMap {
 
         // Store the current filtered data so we can restore it later
         const originalData = vis.filteredData;
+        console.log("originalData before animation: ", originalData); // Log the original data to see what is being passed in
         
         // Group our data by day (based on your `d.date` field)
         // (Make sure each record has a valid date in the `date` field.)
@@ -705,7 +706,7 @@ class LeafletMap {
                     this.onDayCallback(date);
                 }
                 if (this.onDayHeatmapUpdate) {
-                    this.onDayHeatmapUpdate(records);
+                    this.onDayHeatmapUpdate(records, false);
                 }
 
                 await this.fadeIn(cycleTime/2);
@@ -718,6 +719,8 @@ class LeafletMap {
             // Animation is finished. Reset to original, full filtered data
             vis.filteredData = originalData;
             vis.updateData();
+            console.log("vis.filteredData after animation: ", vis.filteredData); 
+            console.log("vis.dots after animation: ", vis.Dots); // Log the dots to see if they are updated
             // reset button and selector
             d3.select("#animate-button").text("Animate Days"); // Reset button text
             d3.select("#animation-speed").property("selectedIndex", 0);
@@ -728,7 +731,7 @@ class LeafletMap {
             }
             if (this.onDayHeatmapUpdate) {
                 // revert heatmap to the full dataset or whatever you prefer
-                this.onDayHeatmapUpdate(originalData);
+                this.onDayHeatmapUpdate(originalData, true);
             }
         }
     }

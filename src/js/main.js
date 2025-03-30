@@ -32,6 +32,12 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       d.freq = frequencyMap.get(d.date.getTime());
     });
 
+    // full doman extents of the data for the heatmap
+    let xDomain = d3.extent(subsetData, d => d.mag);
+    let yDomain = d3.extent(subsetData, d => d.depth);
+
+    let allAreaBrushData = subsetData; // This will hold the data for resetting the heatmap after animation
+
     console.log('subset data: ', subsetData);
 
     // Initialize the map.
@@ -46,9 +52,6 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       onDayCallback = onAnimationDayChanged,
       onDayHeatmapUpdate = onAnimationDayHeatmapUpdate
     );
-
-    let xDomain = d3.extent(subsetData, d => d.mag);
-    let yDomain = d3.extent(subsetData, d => d.depth);
 
     // Instantiate the heatmap with an onBinSelection callback.
     const heatmap = new Heatmap({
@@ -72,6 +75,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       filteredData => {
         leafletMap.setTimeFilteredDataAndUpdate(filteredData);
         heatmap.updateData(filteredData);
+        allAreaBrushData = filteredData;
       });
 
     // Callback functions
@@ -88,9 +92,13 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       // or if you already have a Date object, just pass it through
       areaChart.setAnimationDateLine(date);
     }
-    function onAnimationDayHeatmapUpdate(dayRecords) {
+    function onAnimationDayHeatmapUpdate(dayRecords, endOfAnimation) {
       // This line ensures the heatmap is recalculated *only* for these dayRecords
-      heatmap.updateData(dayRecords);
+      if (endOfAnimation) {
+        heatmap.updateData(allAreaBrushData);
+      } else{
+        heatmap.updateData(dayRecords);
+      }
     }
   })
   .catch(error => console.error(error));
