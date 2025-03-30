@@ -17,6 +17,7 @@ class LeafletMap {
         this.selectionMode = false;
         this.filterRectangle = null;
         this.onFilterCallback = onFilterCallback;
+        this.isAnimating = false; // true while animation is playing
         this.initVis();
     }
 
@@ -233,7 +234,6 @@ class LeafletMap {
     updateData() {
         let vis = this;
 
-
         // variable to set the radius of the dots
         vis.radius = vis.theMap.getZoom() * 2;
         
@@ -243,52 +243,53 @@ class LeafletMap {
             .data(vis.filteredData, d => d.id)
             .join(
                 enter => enter.append('circle') // create a new dot
-                                .attr("fill", d => vis.colorScale(d[vis.currentSelection]))
-                                .attr("stroke", "black")
-                                .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
-                                .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
-                                .attr("r", vis.radius)
-                                
-                                // add mouseover and mouseleave events to the new dot
-                                .on('mouseover', function(event,d) { //function to add mouseover event
-                                    d3.select(this).raise(); // Bring this dot to the front, hurts performance but looks better
-                
-                                    d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                                        .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                                        .attr("fill", "steelblue") //change the fill
-                                        .attr('r', vis.radius * 1.5); //change radius
-                
-                                    //create a tool tip
-                                    d3.select('#tooltip')
-                                        .style('display', 'block')
-                                        .style('z-index', 1000000)
-                                        .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, 
-                                            </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, 
-                                            </br><strong>Depth:</strong> ${d.depth} km, 
-                                            </br><strong>Date:</strong> ${d.time.substring(0, 10)}, 
-                                            </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
-                                })
-                                .on('mousemove', (event) => {
-                                    //position the tooltip
-                                    let x = event.pageX; // offset tooltip to right
-                                    if (event.pageX < window.innerWidth / 2) { // if mouse is on left side of screen
-                                        x = event.pageX + 10; // offset tooltip to right
-                                    } else { // if mouse is on right side of screen
-                                        const tooltipWidth = d3.select("#tooltip").node().offsetWidth;
-                                        x = event.pageX - tooltipWidth - 10; // offset tooltip to left
-                                    }
-                                    d3.select('#tooltip')
-                                        .style('left', (x) + 'px')   
-                                        .style('top', (event.pageY + 10) + 'px');
-                                })              
-                                .on('mouseleave', function() { //function to add mouseover event
-                                    d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                                        .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                                        .attr("fill", d => vis.colorScale(d[vis.currentSelection])) //change the fill  TO DO- change fill again
-                                        .attr("r", vis.radius) // change radius back
-                
-                                        d3.select('#tooltip').style('display', 'none'); // turn off the tooltip
-                                }),
+                    .attr("fill", d => vis.colorScale(d[vis.currentSelection]))
+                    .attr("stroke", "black")
+                    .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
+                    .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
+                    .attr("r", vis.radius)
+                    .style("opacity", vis.isAnimating ? 0 : 1) // 0 for animation, 1 for all other updateData calls
+                    
+                    // add mouseover and mouseleave events to the new dot
+                    .on('mouseover', function(event,d) { //function to add mouseover event
+                        d3.select(this).raise(); // Bring this dot to the front, hurts performance but looks better
+    
+                        d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                            .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                            .attr("fill", "steelblue") //change the fill
+                            .attr('r', vis.radius * 1.5); //change radius
+    
+                        //create a tool tip
+                        d3.select('#tooltip')
+                            .style('display', 'block')
+                            .style('z-index', 1000000)
+                            .html(`<div class="tooltip-label"><strong>Location:</strong> ${d.place}, 
+                                </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, 
+                                </br><strong>Depth:</strong> ${d.depth} km, 
+                                </br><strong>Date:</strong> ${d.time.substring(0, 10)}, 
+                                </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
+                    })
+                    .on('mousemove', (event) => {
+                        //position the tooltip
+                        let x = event.pageX; // offset tooltip to right
+                        if (event.pageX < window.innerWidth / 2) { // if mouse is on left side of screen
+                            x = event.pageX + 10; // offset tooltip to right
+                        } else { // if mouse is on right side of screen
+                            const tooltipWidth = d3.select("#tooltip").node().offsetWidth;
+                            x = event.pageX - tooltipWidth - 10; // offset tooltip to left
+                        }
+                        d3.select('#tooltip')
+                            .style('left', (x) + 'px')   
+                            .style('top', (event.pageY + 10) + 'px');
+                    })              
+                    .on('mouseleave', function() { //function to add mouseover event
+                        d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                            .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                            .attr("fill", d => vis.colorScale(d[vis.currentSelection])) //change the fill  TO DO- change fill again
+                            .attr("r", vis.radius) // change radius back
+    
+                            d3.select('#tooltip').style('display', 'none'); // turn off the tooltip
+                    }),
                 update => update, // keep dot
                 exit => exit.remove() // remove dot
             );
@@ -541,6 +542,70 @@ class LeafletMap {
                 }
             });
         L.DomEvent.disableClickPropagation(vis.toggleHeatmapButton.node()); // Disable additional click propagation
+
+        // ANIMATION BUTTONS
+        // Animation speed dropdown
+        vis.animationSpeedSelect = d3.select("div.leaflet-top.leaflet-left")
+            .append("select")
+            .attr("id", "animation-speed")
+            .style("position", "absolute")
+            .style("left", "425px")
+            .style("top", "40px")
+            .style("width", "110px")
+            .style("display", "none")    // HIDE IT AT FIRST
+            .style("background-color", "white")
+            .style("padding", "2px")
+            .style("border", "1px solid black")
+            .style("border-radius", "3px")
+            .style('pointer-events', 'all');
+
+        vis.animationSpeedSelect
+            .append("option").attr("value", "").attr("disabled", true).attr("selected", true).text("Select Speed"); // Default option
+        vis.animationSpeedSelect
+            .append("option").attr("value", 1000).text("Slow");
+        vis.animationSpeedSelect
+            .append("option").attr("value", 500).text("Medium");
+        vis.animationSpeedSelect
+            .append("option").attr("value", 200).text("Fast");
+
+        // Listen for user selection
+        vis.animationSpeedSelect
+            .on("change", async function() {
+                let speed = parseInt(d3.select(this).property("value"));
+                // Hide the dropdown
+                d3.select(this).style("display", "none");
+                // Run the animation
+                await vis.animateDayByDay(speed);
+            });
+
+        // A button to animate the filtered data day by day
+        vis.animateButton = d3.select("div.leaflet-top.leaflet-left")
+            .append("button")
+            .attr("id", "animate-button")
+            .text("Animate Days")   // initial text
+            .style("position", "absolute")
+            .style("left", "425px")
+            .style("top", "10px")
+            .style("width", "110px")
+            .style("background-color", "white")
+            .style("padding", "5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style("cursor", "pointer")
+            .style('pointer-events', 'all')
+            .on("click", () => {
+                if (!vis.isAnimating) {
+                // If NOT currently animating, show the speed dropdown as before:
+                d3.select("#animation-speed")
+                    .style("display", "block");
+                } else {
+                // If we ARE currently animating, user wants to STOP:
+                vis.isAnimating = false;       // This will signal the loop to break
+                // Also interrupt any ongoing D3 transitions, so we don't hang waiting
+                vis.svg.selectAll("circle").interrupt();
+                }
+            });
+        L.DomEvent.disableClickPropagation(vis.animateButton.node()); // Disable additional click propagation
     }
 
     toggleSelectionArea() {
@@ -580,5 +645,98 @@ class LeafletMap {
         }
       }
       d3.select("#area-button").text(vis.buttonText);
+    }
+
+    async animateDayByDay(cycleTime = 1000) {
+        let vis = this;
+
+        // If there’s no data to animate or already animating, just return.
+        if (!vis.filteredData || vis.filteredData.length === 0 || vis.isAnimating) {
+            return;
+        }
+
+        // Turn on animation mode so new circles start at opacity 0
+        vis.isAnimating = true;
+
+        // Update button text to "Stop Animation"
+        d3.select("#animate-button").text("Stop Animation");
+
+        // Hide heatmap and area chart while animation is running
+        let heatmap = d3.select("#heatmap");
+        if (heatmap.style("display") === "block") {
+            heatmap.style("display", "none");
+        }
+
+        let areaChart = d3.select("#area-chart");
+        if (areaChart.style("display") === "block") {
+            areaChart.style("display", "none");
+        }
+
+        // Store the current filtered data so we can restore it later
+        const originalData = vis.filteredData;
+        
+        // Group our data by day (based on your `d.date` field)
+        // (Make sure each record has a valid date in the `date` field.)
+        // We'll get an array of [dayString, records[]].
+        let dataByDay = d3.rollups(
+            vis.filteredData,
+            records => records,
+            d => d3.timeFormat("%Y-%m-%d")(d.date)  // group by day string, e.g. "2025-01-12"
+        );
+
+        // Sort days in ascending order, so we animate from earliest to latest
+        dataByDay.sort((a, b) => d3.ascending(a[0], b[0]));
+
+        // Optionally remove or clear existing dots on the map right away
+        // so the first day “starts fresh.” This is personal preference.
+        // Here’s one way: set empty data, then update.
+        vis.filteredData = [];
+        vis.updateData();
+
+        try {
+            // Loop through each day, display for 1s, then move on
+            for (const [dayString, records] of dataByDay) {
+                // If user clicked STOP mid-loop, exit immediately:
+                if (!vis.isAnimating) break;
+
+                // Set the map’s filtered data to that day’s records
+                vis.filteredData = records;
+                vis.updateData();
+
+                // Wait 1 second
+                // await new Promise(resolve => setTimeout(resolve, 200));
+
+                await this.fadeIn(cycleTime/2);
+                await new Promise(r => setTimeout(r, cycleTime));
+                await this.fadeOut(cycleTime/2);
+            }
+        } finally {
+            // Turn off animation mode so normal updates come in fully visible
+            vis.isAnimating = false;
+            // Animation is finished. Reset to original, full filtered data
+            vis.filteredData = originalData;
+            vis.updateData();
+            d3.select("#animate-button").text("Animate Days"); // Reset button text
+        }
+    }
+
+    // Dot animations
+    fadeIn(duration = 500) {
+        const circleSel = this.svg.selectAll('circle');
+        if (circleSel.empty()) return Promise.resolve();
+        return circleSel
+            .transition()
+            .duration(duration)
+            .style('opacity', 1)
+            .end();  // returns a Promise
+    }
+    fadeOut(duration = 500) {
+        const circleSel = this.svg.selectAll('circle');
+        if (circleSel.empty()) return Promise.resolve();
+        return circleSel
+            .transition()
+            .duration(duration)
+            .style('opacity', 0)
+            .end();
     }
 }
