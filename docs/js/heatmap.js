@@ -56,7 +56,7 @@ class Heatmap {
         let yDomain = vis.config.yDom;
 
         // Round the maximum up to ensure all data are included.
-        xDomain[1] = Math.ceil(xDomain[1]);
+        xDomain[1] = Math.ceil(xDomain[1]) + 1;
         xDomain[0] = Math.floor(xDomain[0]);
         yDomain[1] = Math.ceil(yDomain[1] / 100) * 100;
 
