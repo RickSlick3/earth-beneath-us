@@ -296,7 +296,8 @@ class LeafletMap {
                                 </br><strong>Magnitude:</strong> ${d3.format(',')(d.mag)}, 
                                 </br><strong>Depth:</strong> ${d.depth} km, 
                                 </br><strong>Date:</strong> ${d.time.substring(0, 10)}, 
-                                </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC)</div>`); // Format number with comma separators
+                                </br><strong>Time:</strong> ${d.time.substring(11, 19)} (UTC),
+                                </br><strong>Local Time:</strong> ${d.localTime} (${d.timezoneAbbrev})</div>`);
                     })
                     .on('mousemove', (event) => {
                         //position the tooltip
