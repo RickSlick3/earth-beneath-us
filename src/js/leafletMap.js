@@ -622,7 +622,7 @@ class LeafletMap {
             .style("position", "absolute")
             .style("left", "540px")    // adjust as needed so it doesn't overlap your other buttons
             .style("top", "10px")
-            .style("width", "110px")
+            .style("width", "70px")
             .style("background-color", "white")
             .style("padding", "5px")
             .style("border", "1px solid black")
