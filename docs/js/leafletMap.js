@@ -556,6 +556,30 @@ class LeafletMap {
         });
 
         d3.select("#button-container").raise();
+
+        // Toggle Grouping Display Button
+        vis.toggleGroupingButton = d3.select("div.leaflet-top.leaflet-left")
+            .append("button")
+            .attr("id", "toggle-grouping-button")
+            .text("Toggle Earthquake Grouping")
+            .style("position", "absolute")
+            .style("left", "50px")    // Adjust horizontal position as needed
+            .style("top", "10px")   // Adjust vertical position so it doesn't overlap other controls
+            .style("width", "110px")
+            .style("background-color", "white")
+            .style("padding", "5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style('pointer-events', 'all') // allow pointer events
+            .style("cursor", "pointer")
+            .on("click", function(event) {
+                vis.groupItems = !vis.groupItems;
+
+                if (vis.groupItems) {
+                  vis.groupEarthquakes(1000);
+                }
+                vis.updateData();
+            });
         
         vis.buttonText = "Enter Selection Mode"
         // Map Area Select Button
@@ -564,7 +588,7 @@ class LeafletMap {
             .attr("id", "area-button")
             .text(vis.buttonText)
             .style("position", "absolute")
-            .style("left", "50px")      // Adjust horizontal position as needed
+            .style("left", "165px")      // Adjust horizontal position as needed
             .style("top", "10px")        // Adjust vertical position as needed
             .style("width", "140px")
             .style("background-color", "white")
@@ -601,7 +625,7 @@ class LeafletMap {
             .attr("id", "toggle-area-chart-button")
             .text("Toggle Brushing")
             .style("position", "absolute")
-            .style("left", "195px")   // Adjust horizontal position as needed
+            .style("left", "310px")   // Adjust horizontal position as needed
             .style("top", "10px")    // Adjust vertical position so it doesn't overlap other buttons
             .style("width", "110px")
             .style("background-color", "white")
@@ -644,7 +668,7 @@ class LeafletMap {
             .attr("id", "toggle-heatmap-button")
             .text("Toggle Heatmap")
             .style("position", "absolute")
-            .style("left", "310px")    // Adjust horizontal position as needed
+            .style("left", "425px")    // Adjust horizontal position as needed
             .style("top", "10px")   // Adjust vertical position so it doesn't overlap other controls
             .style("width", "110px")
             .style("background-color", "white")
@@ -682,30 +706,6 @@ class LeafletMap {
                 d3.select("#tooltip").style("display", "none");
             });
         L.DomEvent.disableClickPropagation(vis.toggleHeatmapButton.node()); // Disable additional click propagation
-
-        // Toggle Grouping Display Button
-        vis.toggleGroupingButton = d3.select("div.leaflet-top.leaflet-left")
-            .append("button")
-            .attr("id", "toggle-heatmap-button")
-            .text("Toggle Earthquake Grouping")
-            .style("position", "absolute")
-            .style("left", "425px")    // Adjust horizontal position as needed
-            .style("top", "10px")   // Adjust vertical position so it doesn't overlap other controls
-            .style("width", "110px")
-            .style("background-color", "white")
-            .style("padding", "5px")
-            .style("border", "1px solid black")
-            .style("border-radius", "5px")
-            .style('pointer-events', 'all') // allow pointer events
-            .style("cursor", "pointer")
-            .on("click", function(event) {
-                vis.groupItems = !vis.groupItems;
-
-                if (vis.groupItems) {
-                  vis.groupEarthquakes(1000);
-                }
-                vis.updateData();
-            });
 
         // ANIMATION BUTTONS
         // Animation speed dropdown
@@ -818,7 +818,7 @@ class LeafletMap {
             .append("div")
             .attr("id", "map-selector-container")
             .style("position", "absolute")
-            .style("left", "630px")    // adjust as needed so it doesn't overlap your other buttons
+            .style("left", "740px")    // adjust as needed so it doesn't overlap your other buttons
             .style("top", "10px")
             .style("width", "90px")
             .style("background-color", "white")
