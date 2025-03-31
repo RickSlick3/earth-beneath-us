@@ -13,6 +13,23 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       d.longitude = +d.longitude;  
       d.depth = +d.depth;
       d.date = parseTime(d.time.substring(0, 10));
+      
+      delete d.horizontalError;
+      delete d.depthError;
+      delete d.magError;
+      delete d.magNst;
+      delete d.status;
+      delete d.locationSource;
+      delete d.magSource;
+      delete d.net;
+      delete d.nst;
+      delete d.gap;
+      delete d.dmin;
+      delete d.rms;
+      delete d.net;
+      delete d.id;
+      delete d.updated;
+      delete d.magType;
     });
 
     const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 8000); // 3116 gives only 2025 data
