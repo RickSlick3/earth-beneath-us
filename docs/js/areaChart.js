@@ -152,13 +152,41 @@ class AreaChart {
         vis.xAxisG.call(vis.xAxis);
         vis.yAxisG.call(vis.yAxis);
 
-        // Define the default brush selection.
-        // For instance, to start the brush at Jan 1, 2025:
-        const year = localStorage.getItem('year') || '2025'; // Use the year stored in localStorage or default to 2024
-        const defaultBrushSelection = [this.xScale(new Date(`${year}-01-01`)), this.xScale.range()[1]];
+        // // Define the default brush selection.
+        // // For instance, to start the brush at Jan 1, 2025:
+        const currentYear = localStorage.getItem('year') || '2025'; // Use the year stored in localStorage or default to 2024
+        // const defaultBrushSelection = [this.xScale(new Date(`${year}-01-01`)), this.xScale.range()[1]];
         
-        if (!vis.brushSelection) {
-          vis.brushSelection = defaultBrushSelection;
+        // if (!vis.brushSelection) {
+        //   vis.brushSelection = defaultBrushSelection;
+        // }
+
+        // Retrieve the saved brush selection.
+        const storedBrush = localStorage.getItem("brushSelection");
+        if (storedBrush) {
+            try {
+                const brushObj = JSON.parse(storedBrush);
+                const startDate = new Date(brushObj.start);
+                const endDate = new Date(brushObj.end);
+
+                // Update the year to match the current year.
+                startDate.setFullYear(+currentYear);
+                endDate.setFullYear(+currentYear);
+
+                // Optionally clamp to the domain of the xScale (if needed).
+                const xDomain = vis.xScale.domain();
+                if (startDate < xDomain[0]) startDate = xDomain[0];
+                if (endDate > xDomain[1]) endDate = xDomain[1];
+
+                vis.brushSelection = [vis.xScale(startDate), vis.xScale(endDate)];
+            } catch (e) {
+                console.error("Error parsing stored brush selection:", e);
+                // Fallback: default brush spanning from Jan 1 to the end of the domain.
+                vis.brushSelection = [vis.xScale(new Date(`${currentYear}-01-01`)), vis.xScale.range()[1]];
+            }
+        } else {
+            // If no stored selection, use a default range.
+            vis.brushSelection = [vis.xScale(new Date(`${currentYear}-01-01`)), vis.xScale.range()[1]];
         }
 
         // Apply the brush and move it to the default selection.
@@ -181,7 +209,14 @@ class AreaChart {
             const endDate = vis.xScale.invert(selection[1]);
             const filteredData = vis.data.filter(d => d.date >= startDate && d.date <= endDate);
             vis.onBrushCallback(filteredData);
+
+            // Save the selection to localStorage as ISO strings
+            localStorage.setItem("brushSelection", JSON.stringify({
+                start: startDate.toISOString(),
+                end: endDate.toISOString()
+            }));
         } else {
+            localStorage.removeItem("brushSelection");
             vis.onBrushCallback(vis.data);
         }
     }

@@ -167,6 +167,7 @@ class Heatmap {
             .data(vis.bins)
             .enter()
             .append("rect")
+            .attr("id", (d, i) => `heat-rect-${i}`) // Add this line
             .attr("class", "heat-rect")
             .attr("x", d => vis.xScale(d.x0) + gap / 2)
             .attr("y", d => vis.yScale(d.y1) + gap / 2)
@@ -181,6 +182,7 @@ class Heatmap {
                 d3.select(this)
                     .attr("stroke", d.selected ? "black" : "none")
                     .attr("stroke-width", d.selected ? 2 : 0);
+                vis.updateHeatmapSelectionLocalStorage();
                 // Recompute filtered data based on selected bins.
                 vis.selectedBins = vis.bins.filter(bin => bin.selected);
                 vis.filterBinData();
@@ -209,8 +211,6 @@ class Heatmap {
      */
     updateData(newData) {
         let vis = this;
-        // Clear any previous bin selections.
-        //vis.clearSelections();
         // Update the data.
         vis.data = newData;
         // Reset bin counts.
@@ -239,20 +239,23 @@ class Heatmap {
         // Update maximum count and color scale domain.
         vis.maxCount = d3.max(vis.bins, d => d.count);
         vis.heatColor.domain([0, vis.maxCount]);
-
+    
         vis.filterBinData();
-
+    
         // Update rectangle fill colors.
         vis.chart.selectAll(".heat-rect")
             .data(vis.bins)
             .transition().duration(200)
             .attr("fill", d => vis.heatColor(d.count));
-
+    
         // Update text labels.
         vis.chart.selectAll(".heat-label")
             .data(vis.bins)
             .transition().duration(200)
             .text(d => d.count);
+    
+        // Restore persisted selection from global localStorage key.
+        vis.restoreHeatmapSelection();
     }
 
     /**
@@ -296,4 +299,63 @@ class Heatmap {
             .style('pointer-events', 'all')
             .style("cursor", "pointer");
     }
+
+    updateHeatmapSelectionLocalStorage() {
+        let vis = this;
+        // Store an array of objects representing each selected bin.
+        const selectedBins = vis.bins
+            .filter(bin => bin.selected)
+            .map(bin => ({
+                x0: bin.x0,
+                x1: bin.x1,
+                y0: bin.y0,
+                y1: bin.y1
+            }));
+        // Use a global key so that the selection persists regardless of year or map type.
+        localStorage.setItem("heatmapSelection", JSON.stringify(selectedBins));
+    }
+
+    restoreHeatmapSelection() {
+        let vis = this;
+        const stored = localStorage.getItem("heatmapSelection");
+        if (stored) {
+            try {
+                const storedBins = JSON.parse(stored);
+                // Reset all bin selections.
+                vis.bins.forEach(bin => bin.selected = false);
+                // For each stored bin, find a matching bin in the current bins.
+                storedBins.forEach(storedBin => {
+                    const match = vis.bins.find(bin =>
+                        bin.x0 === storedBin.x0 &&
+                        bin.x1 === storedBin.x1 &&
+                        bin.y0 === storedBin.y0 &&
+                        bin.y1 === storedBin.y1
+                    );
+                    if (match) {
+                        match.selected = true;
+                        // Update corresponding rectangle style (using its index).
+                        const index = vis.bins.indexOf(match);
+                        d3.select(`#heat-rect-${index}`)
+                            .attr("stroke", "black")
+                            .attr("stroke-width", 2);
+                    }
+                });
+                // Update localStorage to only include bins that still exist.
+                const updatedSelection = vis.bins
+                    .filter(bin => bin.selected)
+                    .map(bin => ({
+                        x0: bin.x0,
+                        x1: bin.x1,
+                        y0: bin.y0,
+                        y1: bin.y1
+                    }));
+                localStorage.setItem("heatmapSelection", JSON.stringify(updatedSelection));
+            } catch (e) {
+                console.error("Error restoring heatmap selection:", e);
+            }
+        }
+        // Update the selectedBins array and trigger filtering.
+        vis.selectedBins = vis.bins.filter(bin => bin.selected);
+        vis.filterBinData();
+    }    
 }
