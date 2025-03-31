@@ -708,6 +708,30 @@ class LeafletMap {
             });
         L.DomEvent.disableClickPropagation(vis.toggleHeatmapButton.node()); // Disable additional click propagation
 
+        // Toggle Grouping Display Button
+        vis.toggleGroupingButton = d3.select("div.leaflet-top.leaflet-left")
+            .append("button")
+            .attr("id", "toggle-heatmap-button")
+            .text("Toggle Earthquake Grouping")
+            .style("position", "absolute")
+            .style("left", "425px")    // Adjust horizontal position as needed
+            .style("top", "10px")   // Adjust vertical position so it doesn't overlap other controls
+            .style("width", "110px")
+            .style("background-color", "white")
+            .style("padding", "5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style('pointer-events', 'all') // allow pointer events
+            .style("cursor", "pointer")
+            .on("click", function(event) {
+                vis.groupItems = !vis.groupItems;
+
+                if (vis.groupItems) {
+                  vis.groupEarthquakes(1000);
+                }
+                vis.updateData();
+            });
+
         // ANIMATION BUTTONS
         // Animation speed dropdown
         vis.animationSpeedSelect = d3.select("div.leaflet-top.leaflet-left")
