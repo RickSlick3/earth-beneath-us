@@ -215,6 +215,8 @@ class LeafletMap {
             vis.updateData();
         });
 
+        vis.groupItems = false;
+
         // handler here for updating the map, as you swipe around
         // vis.theMap.on("moveend", function(){
         //     vis.updateVis();
@@ -222,6 +224,7 @@ class LeafletMap {
 
         vis.createLegend();
         vis.createButtons();
+        vis.groupEarthquakes(1000);
 
         vis.updateVis(); // call updateVis to set the initial view and draw the dots
     }
@@ -254,7 +257,7 @@ class LeafletMap {
     setTimeFilteredDataAndUpdate(newData) {
       let vis = this;
       vis.filteredData = newData;
-      // console.log(vis.filteredData);
+      vis.groupEarthquakes(1000);
       vis.updateData();
     }
 
@@ -268,6 +271,62 @@ class LeafletMap {
         
         // Rebind the new data to the dots selection.
         // Use a key function if you have a unique identifier.
+        if (vis.groupItems) {
+          vis.Dots = vis.svg.selectAll('circle')
+            .data(vis.groupedData, d => d.id)
+            .join(
+                enter => enter.append('circle') // create a new dot
+                    .attr("fill", d => vis.colorScale(d[vis.currentSelection]))
+                    .attr("stroke", "black")
+                    .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).x)
+                    .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude, d.longitude]).y)
+                    .attr("r", vis.radius)
+                    .style("opacity", vis.isAnimating ? 0 : 1) // 0 for animation, 1 for all other updateData calls
+                    
+                    // add mouseover and mouseleave events to the new dot
+                    .on('mouseover', function(event,d) { //function to add mouseover event
+                        d3.select(this).raise(); // Bring this dot to the front, hurts performance but looks better
+    
+                        d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                            .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                            .attr("fill", "steelblue") //change the fill
+                            .attr('r', vis.radius * 1.5); //change radius
+    
+                        //create a tool tip
+                        d3.select('#tooltip')
+                            .style('display', 'block')
+                            .style('z-index', 1000000)
+                            .html(`<div class="tooltip-label"><strong>Location:</strong> Near ${d.location}, 
+                                </br><strong>Average Magnitude:</strong> ${d3.format(',')(d.mag.toFixed(2))}, 
+                                </br><strong>Average Depth:</strong> ${d.depth.toFixed(2)} km, 
+                                </br><strong>Num. Items:</strong> ${d.numPoints}</div>`);
+                    })
+                    .on('mousemove', (event) => {
+                        //position the tooltip
+                        let x = event.pageX; // offset tooltip to right
+                        if (event.pageX < window.innerWidth / 2) { // if mouse is on left side of screen
+                            x = event.pageX + 10; // offset tooltip to right
+                        } else { // if mouse is on right side of screen
+                            const tooltipWidth = d3.select("#tooltip").node().offsetWidth;
+                            x = event.pageX - tooltipWidth - 10; // offset tooltip to left
+                        }
+                        d3.select('#tooltip')
+                            .style('left', (x) + 'px')   
+                            .style('top', (event.pageY + 10) + 'px');
+                    })              
+                    .on('mouseleave', function() { //function to add mouseover event
+                        d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                            .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                            .attr("fill", d => vis.colorScale(d[vis.currentSelection])) //change the fill  TO DO- change fill again
+                            .attr("r", vis.radius) // change radius back
+    
+                            d3.select('#tooltip').style('display', 'none'); // turn off the tooltip
+                    }),
+                update => update.style("opacity", vis.isAnimating ? 0 : 1), // keep dot but update opacity
+                exit => exit.remove() // remove dot
+            );
+        }
+        else {
         vis.Dots = vis.svg.selectAll('circle')
             .data(vis.filteredData, d => d.id)
             .join(
@@ -323,6 +382,7 @@ class LeafletMap {
                 update => update.style("opacity", vis.isAnimating ? 0 : 1), // keep dot but update opacity
                 exit => exit.remove() // remove dot
             );
+          }
 
         // redraw dots based on new zoom - need to recalculate on-screen position
         vis.Dots
@@ -624,13 +684,37 @@ class LeafletMap {
             });
         L.DomEvent.disableClickPropagation(vis.toggleHeatmapButton.node()); // Disable additional click propagation
 
+        // Toggle Grouping Display Button
+        vis.toggleGroupingButton = d3.select("div.leaflet-top.leaflet-left")
+            .append("button")
+            .attr("id", "toggle-heatmap-button")
+            .text("Toggle Earthquake Grouping")
+            .style("position", "absolute")
+            .style("left", "425px")    // Adjust horizontal position as needed
+            .style("top", "10px")   // Adjust vertical position so it doesn't overlap other controls
+            .style("width", "110px")
+            .style("background-color", "white")
+            .style("padding", "5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style('pointer-events', 'all') // allow pointer events
+            .style("cursor", "pointer")
+            .on("click", function(event) {
+                vis.groupItems = !vis.groupItems;
+
+                if (vis.groupItems) {
+                  vis.groupEarthquakes(1000);
+                }
+                vis.updateData();
+            });
+
         // ANIMATION BUTTONS
         // Animation speed dropdown
         vis.animationSpeedSelect = d3.select("div.leaflet-top.leaflet-left")
             .append("select")
             .attr("id", "animation-speed")
             .style("position", "absolute")
-            .style("left", "425px")
+            .style("left", "540px")
             .style("top", "40px")
             .style("width", "110px")
             .style("display", "none")    // HIDE IT AT FIRST
@@ -665,7 +749,7 @@ class LeafletMap {
             .attr("id", "animate-button")
             .text("Animate Days")   // initial text
             .style("position", "absolute")
-            .style("left", "425px")
+            .style("left", "540px")
             .style("top", "10px")
             .style("width", "110px")
             .style("background-color", "white")
@@ -693,7 +777,7 @@ class LeafletMap {
             .append("div")
             .attr("id", "year-selector-container")
             .style("position", "absolute")
-            .style("left", "540px")    // adjust as needed so it doesn't overlap your other buttons
+            .style("left", "655px")    // adjust as needed so it doesn't overlap your other buttons
             .style("top", "10px")
             .style("width", "70px")
             .style("background-color", "white")
@@ -915,5 +999,53 @@ class LeafletMap {
             .duration(duration)
             .style('opacity', 0)
             .end();
+    }
+
+    gridHash(point, gridSize) {
+      return `${Math.floor(point.latitude / gridSize)},${Math.floor(point.longitude / gridSize)}`;
+    }
+
+    haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Earth radius in km
+      const toRad = (deg) => (deg * Math.PI) / 180;
+  
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      
+      const a = 
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c; // Distance in km
+  }
+
+    groupEarthquakes(radius) {
+      let vis = this;
+      vis.previouslyFilteredData = vis.filteredData
+      vis.groupedData = [];
+
+      const gridSize = radius / 111; // Approximate km per degree
+      const grid = new Map();
+      
+      vis.filteredData.forEach(point => {
+          const key = vis.gridHash(point, gridSize);
+          if (!grid.has(key)) grid.set(key, []);
+          grid.get(key).push(point);
+      });
+
+      const result = Array.from(grid.values());
+      result.forEach(x => {
+        let groupPoint = {depth: 0.0, mag: 0.0, latitude: 0.0, longitude: 0.0, location: "", numPoints: 0};
+        groupPoint.depth = x.reduce((sum, item) => sum + item.depth, 0) / x.length;
+        groupPoint.mag = x.reduce((sum, item) => sum + item.mag, 0) / x.length;
+        groupPoint.latitude = x.reduce((sum, item) => sum + item.latitude, 0) / x.length;
+        groupPoint.longitude = x.reduce((sum, item) => sum + item.longitude, 0) / x.length;
+        groupPoint.location = x[0].place.indexOf("of ") === -1 ? x[0].place : x[0].place.substring(x[0].place.indexOf("of ") + 3);
+        groupPoint.numPoints = x.length;
+        vis.groupedData.push(groupPoint);
+      })
+      console.log(vis.groupedData);
     }
 }
