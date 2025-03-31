@@ -47,6 +47,7 @@ html, body {
   font-weight: 600;
   padding: 2px 8px;
   display: none;
+  z-index: 1000;
 }
 .tooltip-label {
   font-weight: 500;

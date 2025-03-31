@@ -516,6 +516,22 @@ class LeafletMap {
             .style('pointer-events', 'all') // allow pointer events
             .on("click", function() {
               vis.toggleSelectionArea();
+            })
+            // Add tooltip on hover:
+            .on("mouseover", function(event) {
+                d3.select("#tooltip")
+                    .html("Click to enter selection mode. Click and drag to filter by an area on the map.")
+                    .style("display", "block")
+                    .style("width", "110px");
+                const buttonRect = this.getBoundingClientRect();
+                const tooltip = d3.select("#tooltip");
+                const tooltipWidth = tooltip.node().offsetWidth;
+                const leftPos = buttonRect.left + (buttonRect.width / 2) - (tooltipWidth / 2);
+                const topPos = buttonRect.bottom + 5;
+                tooltip.style("left", leftPos + "px").style("top", topPos + "px");
+            })
+            .on("mouseout", function() {
+                d3.select("#tooltip").style("display", "none");
             });
         L.DomEvent.disableClickPropagation(vis.areaSelectButton.node()); // Disable additional click propagation
 
@@ -543,6 +559,22 @@ class LeafletMap {
                     chart.style("display", "none");
                     localStorage.setItem('showAreaChart', 'false');
                 }
+            })
+            // Add tooltip on hover:
+            .on("mouseover", function(event) {
+                d3.select("#tooltip")
+                    .html("Click to show/hide the brushing tool. Click and drag to filter by a selected timeframe.")
+                    .style("display", "block")
+                    .style("width", "110px");
+                const buttonRect = this.getBoundingClientRect();
+                const tooltip = d3.select("#tooltip");
+                const tooltipWidth = tooltip.node().offsetWidth;
+                const leftPos = buttonRect.left + (buttonRect.width / 2) - (tooltipWidth / 2);
+                const topPos = buttonRect.bottom + 5;
+                tooltip.style("left", leftPos + "px").style("top", topPos + "px");
+            })
+            .on("mouseout", function() {
+                d3.select("#tooltip").style("display", "none");
             });
         L.DomEvent.disableClickPropagation(vis.toggleChartButton.node()); // Disable additional click propagation
 
@@ -564,7 +596,6 @@ class LeafletMap {
             .on("click", function(event) {
                 // Prevent the click event from affecting the map
                 event.stopPropagation();
-
                 let heatmap = d3.select("#heatmap");
                 if (heatmap.style("display") === "none") {
                     heatmap.style("display", "block");
@@ -573,6 +604,22 @@ class LeafletMap {
                     heatmap.style("display", "none");
                     localStorage.setItem('showHeatmap', 'false');
                 }
+            })
+            // Add tooltip on hover:
+            .on("mouseover", function(event) {
+                d3.select("#tooltip")
+                    .html("Click to show/hide the heatmap. Click the bins to filter by magnitude and depth.")
+                    .style("display", "block")
+                    .style("width", "110px");
+                const buttonRect = this.getBoundingClientRect();
+                const tooltip = d3.select("#tooltip");
+                const tooltipWidth = tooltip.node().offsetWidth;
+                const leftPos = buttonRect.left + (buttonRect.width / 2) - (tooltipWidth / 2);
+                const topPos = buttonRect.bottom + 5;
+                tooltip.style("left", leftPos + "px").style("top", topPos + "px");
+            })
+            .on("mouseout", function() {
+                d3.select("#tooltip").style("display", "none");
             });
         L.DomEvent.disableClickPropagation(vis.toggleHeatmapButton.node()); // Disable additional click propagation
 
