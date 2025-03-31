@@ -317,4 +317,19 @@ class AreaChart {
             // For the text, you can format the date any way you like:
             .text(d3.timeFormat("%m/%d/%Y")(date));
     }
+
+    hideBrushLabels() {
+        this.brushStartLabel.style("display", "none");
+        this.brushEndLabel.style("display", "none");
+        this.brushFreqLabel.style("display", "none");
+    }
+
+    showBrushLabels() {
+        // Only show if there is an active brush selection.
+        if (this.brushSelection) {
+            this.brushStartLabel.style("display", "block");
+            this.brushEndLabel.style("display", "block");
+            this.brushFreqLabel.style("display", "block");
+        }
+    } 
 }

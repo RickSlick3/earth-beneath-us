@@ -137,11 +137,13 @@ d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'dat
       areaChart.canBrush = false;
       areaChart.toggleBrushPointerEvents();
       heatmap.disableBinClicks();
+      areaChart.hideBrushLabels();
     }
     function enableInteraction() {
       areaChart.canBrush = true;
       areaChart.toggleBrushPointerEvents();
       heatmap.enableBinClicks();
+      areaChart.showBrushLabels();
     }
     
     function onAnimationDayChanged(date) {
