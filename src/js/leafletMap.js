@@ -513,8 +513,10 @@ class LeafletMap {
                 let chart = d3.select("#area-chart");
                 if (chart.style("display") === "none") {
                     chart.style("display", "block");
+                    localStorage.setItem('showAreaChart', 'true');
                 } else {
                     chart.style("display", "none");
+                    localStorage.setItem('showAreaChart', 'false');
                 }
             });
         L.DomEvent.disableClickPropagation(vis.toggleChartButton.node()); // Disable additional click propagation
@@ -541,8 +543,10 @@ class LeafletMap {
                 let heatmap = d3.select("#heatmap");
                 if (heatmap.style("display") === "none") {
                     heatmap.style("display", "block");
+                    localStorage.setItem('showHeatmap', 'true');
                 } else {
                     heatmap.style("display", "none");
+                    localStorage.setItem('showHeatmap', 'false');
                 }
             });
         L.DomEvent.disableClickPropagation(vis.toggleHeatmapButton.node()); // Disable additional click propagation

@@ -6,7 +6,7 @@ const parseTime = d3.timeParse("%Y-%m-%d");
 
 const availableYears = localStorage.getItem('availableYears');
 if (!availableYears) {
-  localStorage.setItem('availableYears', JSON.stringify(['2024', '2025'])); // Store available years in local storage
+  localStorage.setItem('availableYears', JSON.stringify(['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'])); // Store available years in local storage
 }
 
 const year = localStorage.getItem('year');
@@ -14,6 +14,13 @@ if (!year) {
   localStorage.setItem('year', '2025');
 }
 console.log("Year set for visualization: " + year);
+
+if (!localStorage.getItem('showHeatmap')) {
+  localStorage.setItem('showHeatmap', 'false');
+}
+if (!localStorage.getItem('showAreaChart')) {
+  localStorage.setItem('showAreaChart', 'false');
+}
 
 d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'data/2024-2025.csv'
   .then(data => {
@@ -45,7 +52,7 @@ d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'dat
 
     //const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 8000);
     const subsetData = data.filter(d => 
-      d.type == "earthquake" &&
+      d.type == "earthquake" && d.mag >= 2.5 &&
       d.latitude != null && d.latitude !== '' && !isNaN(d.latitude) &&
       d.longitude != null && d.longitude !== '' && !isNaN(d.longitude) &&
       d.mag != null && d.mag !== '' && !isNaN(d.mag) &&
@@ -137,6 +144,17 @@ d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'dat
       } else{
         heatmap.updateData(dayRecords);
       }
+    }
+
+    // choose to display or hide the area chart and heatmap based on local storage settings
+    const heatmapElement = d3.select('#heatmap');
+    const areachartElement = d3.select('#area-chart');
+
+    if (localStorage.getItem('showHeatmap') === 'true') {
+      heatmapElement.style('display', 'block');
+    }
+    if (localStorage.getItem('showAreaChart') === 'true') {
+      areachartElement.style('display', 'block');
     }
   })
   .catch(error => console.error(error));
