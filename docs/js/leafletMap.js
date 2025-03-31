@@ -1046,6 +1046,6 @@ class LeafletMap {
         groupPoint.numPoints = x.length;
         vis.groupedData.push(groupPoint);
       })
-      console.log(vis.groupedData);
+    //   console.log(vis.groupedData);
     }
 }
