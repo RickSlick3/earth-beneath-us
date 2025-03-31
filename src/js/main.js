@@ -4,13 +4,25 @@
 // Initialize helper function
 const parseTime = d3.timeParse("%Y-%m-%d");
 
-d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'data/2024-2025.csv'
+const availableYears = localStorage.getItem('availableYears');
+if (!availableYears) {
+  localStorage.setItem('availableYears', JSON.stringify(['2024', '2025'])); // Store available years in local storage
+}
+
+const year = localStorage.getItem('year');
+if (!year) {
+  localStorage.setItem('year', '2025');
+}
+console.log("Year set for visualization: " + year);
+
+d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'data/2024-2025.csv'
   .then(data => {
     console.log("number of items: " + data.length);
 
     data.forEach(d => {  // convert from string to number
       d.latitude = +d.latitude; 
-      d.longitude = +d.longitude;  
+      d.longitude = +d.longitude; 
+      d.mag = +d.mag; 
       d.depth = +d.depth;
       d.date = parseTime(d.time.substring(0, 10));
       
@@ -27,14 +39,19 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
       delete d.dmin;
       delete d.rms;
       delete d.net;
-      delete d.id;
       delete d.updated;
       delete d.magType;
     });
 
-    const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 8000); // 3116 gives only 2025 data
-    let filteredAreaData = subsetData;
-    let filteredDataFinal = subsetData;
+    //const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 8000);
+    const subsetData = data.filter(d => 
+      d.type == "earthquake" &&
+      d.latitude != null && d.latitude !== '' && !isNaN(d.latitude) &&
+      d.longitude != null && d.longitude !== '' && !isNaN(d.longitude) &&
+      d.mag != null && d.mag !== '' && !isNaN(d.mag) &&
+      d.depth != null && d.depth !== '' && !isNaN(d.depth) &&
+      d.date != null && d.date !== '' // and any other checks you want, e.g. date validity
+    );
 
     // Create a frequency map where the key is the time (in milliseconds)
     // and the value is the count of earthquakes on that day.
@@ -55,6 +72,7 @@ d3.csv('data/2024-2025.csv')  //**** TO DO  switch this to loading the quakes 'd
 
     let allAreaBrushData = subsetData; // This will hold the data for resetting the heatmap after animation
 
+    console.log('subset data length: ', subsetData.length);
     console.log('subset data: ', subsetData);
 
     // Initialize the map.

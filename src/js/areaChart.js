@@ -15,7 +15,7 @@ class AreaChart {
         };
         this.data = _data;
         this.onBrushCallback = onBrushCallback; // Called when brush selection changes.
-        this.maxBrushWidth = 200; // Maximum width of the brush selection in pixels
+        this.maxBrushWidth = 211; // Maximum width of the brush selection in pixels
         this.canBrush = true; // Flag to indicate if brushing is enabled
         this.initVis();
     }
@@ -154,7 +154,8 @@ class AreaChart {
 
         // Define the default brush selection.
         // For instance, to start the brush at Jan 1, 2025:
-        const defaultBrushSelection = [this.xScale(new Date('2025-03-01')), this.xScale.range()[1]];
+        const year = localStorage.getItem('year') || '2025'; // Use the year stored in localStorage or default to 2024
+        const defaultBrushSelection = [this.xScale(new Date(`${year}-01-01`)), this.xScale.range()[1]];
         
         if (!vis.brushSelection) {
           vis.brushSelection = defaultBrushSelection;

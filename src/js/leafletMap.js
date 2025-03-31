@@ -610,6 +610,48 @@ class LeafletMap {
                 }
             });
         L.DomEvent.disableClickPropagation(vis.animateButton.node()); // Disable additional click propagation
+
+        // Year Selector
+        vis.yearSelectorContainer = d3.select("div.leaflet-top.leaflet-left")
+            .append("div")
+            .attr("id", "year-selector-container")
+            .style("position", "absolute")
+            .style("left", "540px")    // adjust as needed so it doesn't overlap your other buttons
+            .style("top", "10px")
+            .style("width", "110px")
+            .style("background-color", "white")
+            .style("padding", "5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style('pointer-events', 'all'); // allows click events
+        L.DomEvent.disableClickPropagation(vis.yearSelectorContainer.node());
+
+        vis.yearSelectorContainer.append("label")
+            .text("Select Year")
+            .style("display", "block")
+            .style("margin-bottom", "3px");
+
+        let yearSelect = vis.yearSelectorContainer
+            .append("select")
+            .style("width", "100%");
+
+        const availableYears = JSON.parse(localStorage.getItem('availableYears'));
+
+        yearSelect.selectAll("option")
+            .data(availableYears)
+            .enter()
+            .append("option")
+                .attr("value", d => d)
+                .text(d => d);
+
+        const currentYear = localStorage.getItem("year") || "2025";
+        yearSelect.property("value", currentYear);
+
+        yearSelect.on("change", function(event) {
+            const newYear = d3.select(this).property("value");
+            localStorage.setItem("year", newYear); // store in local storage
+            window.location.reload(); // reload the page so main.js picks up the new year
+        });
     }
 
     toggleSelectionArea() {
