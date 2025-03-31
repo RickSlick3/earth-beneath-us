@@ -42,7 +42,13 @@ d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'dat
       d.mag = +d.mag; 
       d.depth = +d.depth;
       d.date = parseTime(d.time.substring(0, 10));
-      
+
+      // local timezone and time
+      const tz = tzlookup(d.latitude, d.longitude);
+      d.timezone = tz;
+      d.timezoneAbbrev = moment.tz.zone(tz).abbr(new Date(d.time).getTime());
+      d.localTime = moment.utc(d.time).tz(tz).format("hh:mm:ss A");
+
       delete d.horizontalError;
       delete d.depthError;
       delete d.magError;
@@ -59,6 +65,8 @@ d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'dat
       delete d.updated;
       delete d.magType;
     });
+
+    console.log("EXAMPLE DATA: ", data[0]);
 
     //const subsetData = data.filter((d, i) => d.type == "earthquake" && i < 8000);
     const subsetData = data.filter(d => 
