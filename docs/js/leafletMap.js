@@ -31,28 +31,53 @@ class LeafletMap {
     */
     initVis() {
         let vis = this;
+        
+        // // ESRI
+        // const esriUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        // const esriAttr = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+        // // TOPO
+        // const topoUrl ='https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+        // const topoAttr = 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        // // Street map
+        // const streetUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
+        // const streetAttr = 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012';
+        // // Dark/contrast
+        // const darkUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+        // const darkAttr = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
 
-        //ESRI
-        vis.esriUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-        vis.esriAttr = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+        const tileLayers = {
+            terrain: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            },
+            topograph: {
+                url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+                attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+            },
+            street: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
+            },
+            contrast: {
+                url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            },
+        };
 
-        //TOPO
-        vis.topoUrl ='https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
-        vis.topoAttr = 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        // Read preferred map type or default to 'esri'
+        const mapType = localStorage.getItem('mapType') || 'terrain';
 
-        //Thunderforest Outdoors- requires key... so meh... 
-        vis.thOutUrl = 'https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}';
-        vis.thOutAttr = '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        // Assign URL and attribution from the dictionary
+        const { url, attribution } = tileLayers[mapType] || tileLayers.terrain;
 
-        //Stamen Terrain
-        vis.stUrl = 'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}';
-        vis.stAttr = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        vis.mapUrl = url;
+        vis.mapAttr = attribution;
 
         //this is the base map layer, where we are showing the map background
         //**** TO DO - try different backgrounds 
-        vis.base_layer = L.tileLayer(vis.esriUrl, {
+        vis.base_layer = L.tileLayer(vis.mapUrl, {
             id: 'esri-image',
-            attribution: vis.esriAttr,
+            attribution: vis.mapAttr,
             ext: 'png',
             noWrap: true,  // This disables the tile wrapping, using maxBounds below looks better
             bounds: [[-90, -180], [90, 180]]  // Only load tiles within these bounds.
@@ -61,8 +86,8 @@ class LeafletMap {
         vis.theMap = L.map('my-map', {
             center: [30, 0],
             zoom: 2,
-            minZoom: 2,
-            maxZoom: 7,
+            minZoom: 1,
+            maxZoom: 9,
             layers: [vis.base_layer],
             maxBounds: [[-90, -360], [90, 360]],  // Restrict panning to world bounds
         });
@@ -551,6 +576,22 @@ class LeafletMap {
             .style('pointer-events', 'all') // allow pointer events
             .on("click", function() {
               vis.toggleSelectionArea();
+            })
+            // Add tooltip on hover:
+            .on("mouseover", function(event) {
+                d3.select("#tooltip")
+                    .html("Click to enter selection mode. Click and drag to filter by an area on the map.")
+                    .style("display", "block")
+                    .style("width", "110px");
+                const buttonRect = this.getBoundingClientRect();
+                const tooltip = d3.select("#tooltip");
+                const tooltipWidth = tooltip.node().offsetWidth;
+                const leftPos = buttonRect.left + (buttonRect.width / 2) - (tooltipWidth / 2);
+                const topPos = buttonRect.bottom + 5;
+                tooltip.style("left", leftPos + "px").style("top", topPos + "px");
+            })
+            .on("mouseout", function() {
+                d3.select("#tooltip").style("display", "none");
             });
         L.DomEvent.disableClickPropagation(vis.areaSelectButton.node()); // Disable additional click propagation
 
@@ -578,6 +619,22 @@ class LeafletMap {
                     chart.style("display", "none");
                     localStorage.setItem('showAreaChart', 'false');
                 }
+            })
+            // Add tooltip on hover:
+            .on("mouseover", function(event) {
+                d3.select("#tooltip")
+                    .html("Click to show/hide the brushing tool. Click and drag to filter by a selected timeframe.")
+                    .style("display", "block")
+                    .style("width", "110px");
+                const buttonRect = this.getBoundingClientRect();
+                const tooltip = d3.select("#tooltip");
+                const tooltipWidth = tooltip.node().offsetWidth;
+                const leftPos = buttonRect.left + (buttonRect.width / 2) - (tooltipWidth / 2);
+                const topPos = buttonRect.bottom + 5;
+                tooltip.style("left", leftPos + "px").style("top", topPos + "px");
+            })
+            .on("mouseout", function() {
+                d3.select("#tooltip").style("display", "none");
             });
         L.DomEvent.disableClickPropagation(vis.toggleChartButton.node()); // Disable additional click propagation
 
@@ -599,7 +656,6 @@ class LeafletMap {
             .on("click", function(event) {
                 // Prevent the click event from affecting the map
                 event.stopPropagation();
-
                 let heatmap = d3.select("#heatmap");
                 if (heatmap.style("display") === "none") {
                     heatmap.style("display", "block");
@@ -608,6 +664,22 @@ class LeafletMap {
                     heatmap.style("display", "none");
                     localStorage.setItem('showHeatmap', 'false');
                 }
+            })
+            // Add tooltip on hover:
+            .on("mouseover", function(event) {
+                d3.select("#tooltip")
+                    .html("Click to show/hide the heatmap. Click the bins to filter by magnitude and depth.")
+                    .style("display", "block")
+                    .style("width", "110px");
+                const buttonRect = this.getBoundingClientRect();
+                const tooltip = d3.select("#tooltip");
+                const tooltipWidth = tooltip.node().offsetWidth;
+                const leftPos = buttonRect.left + (buttonRect.width / 2) - (tooltipWidth / 2);
+                const topPos = buttonRect.bottom + 5;
+                tooltip.style("left", leftPos + "px").style("top", topPos + "px");
+            })
+            .on("mouseout", function() {
+                d3.select("#tooltip").style("display", "none");
             });
         L.DomEvent.disableClickPropagation(vis.toggleHeatmapButton.node()); // Disable additional click propagation
 
@@ -738,6 +810,48 @@ class LeafletMap {
         yearSelect.on("change", function(event) {
             const newYear = d3.select(this).property("value");
             localStorage.setItem("year", newYear); // store in local storage
+            window.location.reload(); // reload the page so main.js picks up the new year
+        });
+
+        // Map Selector
+        vis.mapSelectorContainer = d3.select("div.leaflet-top.leaflet-left")
+            .append("div")
+            .attr("id", "map-selector-container")
+            .style("position", "absolute")
+            .style("left", "630px")    // adjust as needed so it doesn't overlap your other buttons
+            .style("top", "10px")
+            .style("width", "90px")
+            .style("background-color", "white")
+            .style("padding", "5px")
+            .style("border", "1px solid black")
+            .style("border-radius", "5px")
+            .style('pointer-events', 'all'); // allows click events
+        L.DomEvent.disableClickPropagation(vis.mapSelectorContainer.node());
+
+        vis.mapSelectorContainer.append("label")
+            .text("Select Map")
+            .style("display", "block")
+            .style("margin-bottom", "3px");
+
+        let mapSelect = vis.mapSelectorContainer
+            .append("select")
+            .style("width", "100%");
+
+        const availableMaps = JSON.parse(localStorage.getItem('availableMaps'));
+
+        mapSelect.selectAll("option")
+            .data(availableMaps)
+            .enter()
+            .append("option")
+                .attr("value", d => d)
+                .text(d => d);
+
+        const currentMap = localStorage.getItem("mapType") || "terrain";
+        mapSelect.property("value", currentMap);
+
+        mapSelect.on("change", function(event) {
+            const newMap = d3.select(this).property("value");
+            localStorage.setItem("mapType", newMap); // store in local storage
             window.location.reload(); // reload the page so main.js picks up the new year
         });
     }

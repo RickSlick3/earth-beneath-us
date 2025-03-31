@@ -4,22 +4,32 @@
 // Initialize helper function
 const parseTime = d3.timeParse("%Y-%m-%d");
 
-const availableYears = localStorage.getItem('availableYears');
-if (!availableYears) {
+// Years
+if (!localStorage.getItem('availableYears')) {
   localStorage.setItem('availableYears', JSON.stringify(['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'])); // Store available years in local storage
 }
-
 const year = localStorage.getItem('year');
 if (!year) {
   localStorage.setItem('year', '2025');
 }
 console.log("Year set for visualization: " + year);
 
+// Charts
 if (!localStorage.getItem('showHeatmap')) {
   localStorage.setItem('showHeatmap', 'false');
 }
 if (!localStorage.getItem('showAreaChart')) {
   localStorage.setItem('showAreaChart', 'false');
+}
+
+// Maps
+const mapType = localStorage.getItem('mapType')
+if (!mapType) {
+  localStorage.setItem('mapType', 'terrain');
+}
+console.log("Map set for visualization: " + mapType);
+if (!localStorage.getItem('availableMaps')) {
+  localStorage.setItem('availableMaps', JSON.stringify(['terrain', 'topograph', 'street', 'contrast']))
 }
 
 d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'data/2024-2025.csv'
@@ -76,6 +86,8 @@ d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'dat
     // full doman extents of the data for the heatmap
     let xDomain = d3.extent(subsetData, d => d.mag);
     let yDomain = d3.extent(subsetData, d => d.depth);
+    console.log('xDomain: ', xDomain);
+    console.log('yDomain: ', yDomain);
 
     let allAreaBrushData = subsetData; // This will hold the data for resetting the heatmap after animation
 
@@ -125,11 +137,13 @@ d3.csv(`data/${year}.csv`)  //**** TO DO  switch this to loading the quakes 'dat
       areaChart.canBrush = false;
       areaChart.toggleBrushPointerEvents();
       heatmap.disableBinClicks();
+      areaChart.hideBrushLabels();
     }
     function enableInteraction() {
       areaChart.canBrush = true;
       areaChart.toggleBrushPointerEvents();
       heatmap.enableBinClicks();
+      areaChart.showBrushLabels();
     }
     
     function onAnimationDayChanged(date) {
