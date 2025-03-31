@@ -57,6 +57,7 @@ class Heatmap {
 
         // Round the maximum up to ensure all data are included.
         xDomain[1] = Math.ceil(xDomain[1]);
+        xDomain[0] = Math.floor(xDomain[0]);
         yDomain[1] = Math.ceil(yDomain[1] / 100) * 100;
 
         // Create scales using the full (rounded) extents.
@@ -69,7 +70,7 @@ class Heatmap {
             .range([vis.innerHeight, 0]);
 
         // Generate tick arrays.
-        let xTicks = d3.range(xDomain[0], xDomain[1] + 1); // whole numbers
+        let xTicks = d3.range(xDomain[0], xDomain[1]); // whole numbers
         let yTicks = d3.range(0, yDomain[1] + 1, 100);       // multiples of 100 starting at 0
 
         // Force the scales to exactly match the tick boundaries.
