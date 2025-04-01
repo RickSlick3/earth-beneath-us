@@ -32,25 +32,44 @@ The data used for this application is from the [United States Geological Survey 
 
 The map offers several interactive features and filtering options:
 
-1. **Area Selection:** By selecting the "Enter Selection Mode" button, the user can click and drag to cover an area on the map. The data will filter to only display earthquakes within the selcted area on the map. 
+1. **Overview/Tooltips:** This is the initial view of the application. Each earthquake is represented by a dot on the map. The dots are colored by either magnitude or depth, and can be freely switched between using the buttons in the top right. Hover over an earthquake to see info on it such as location, magnitude, depth, and the date and time the earthquake occurred.
+
+![Application Overview](/documentation-files/overview-tooltips.png)
+
+2. **Earthquake Grouping:** Since there are many areas with large clusters of earthquakes, it can be difficult to gain a generalized view of the earthquakes. To solve this, the user can select the "Toggle Earthquake Grouping" button to group earthquakes within a certain radius. The user can then hover these groups to see the general location of these earthquakes, the avarage magnitude and depth, and the number of earthquakes included in the group. These groupings also change according to other filters. Future work could see an option for the user to view each earthquake in a group through a list view.
+
+![Earthquake Grouping](/documentation-files/earthquake-grouping.png)
+
+3. **Area Selection:** By selecting the "Enter Selection Mode" button, the user can click and drag to cover an area on the map. The data will filter to only display earthquakes within the selcted area on the map. 
 
 ![Filter by Area](/documentation-files/area-selection.png)
 
-2. **Timeline Brushing:** By selecting the "Toggle Brushing" button, the user can see what dates the data is filtered by in the area chart. The user can select either edge to increase or decrease the timespan, or drag the brushing area to filter the displayed data by a different timespan entirely. 
+4. **Timeline Brushing:** By selecting the "Toggle Brushing" button, the user can see what dates the data is filtered by in the area chart. The user can select either edge to increase or decrease the timespan, or drag the brushing area to filter the displayed data by a different timespan entirely. 
 
 ![Filter by Time](/documentation-files/timeline-brushing.png)
 
-3. **Filtering by Depth and Magnitude:** By selecting the "Toggle Heatmap" button, the user can see the distribution of the displayed earthquakes by magnitude and depth. The user can also select multiple heatmap bins to filter the displayed data by specific magnitudes or depths. 
+5. **Filtering by Depth and Magnitude:** By selecting the "Toggle Heatmap" button, the user can see the distribution of the displayed earthquakes by magnitude and depth. The user can also select multiple heatmap bins to filter the displayed data by specific magnitudes or depths. 
 
 ![Filter by Depth and Magnitude](/documentation-files/heatmap-filter.png)
 
-4. **Animate Over Time:** By selecting the "Animate Days" button to show a day by day animation of the filtered points within the selected timespan in the area chart. 
+6. **Animate Over Time:** By selecting the "Animate Days" button to show a day by day animation of the filtered points within the selected timespan in the area chart. 
 
 ![Animate Over Time](/documentation-files/animation.png)
 
 **Tip:** To achieve unique results, try using multiple filters before animating the points. 
 
-- TODO: 1 section on what your application enables you to discover: Present some findings you arrive at with your application. 
+7. **Choose from Different Map Views:** Using the "Select Map" drop down, the user can choose between "terrain", "topograph", "street", and "contrast" views for the map.
+
+![Topograph Map View](/documentation-files/topograph.png)
+
+## Application Discoveries
+
+There are numerous findings that this application could enable users to discover. We will list some of them here:
+
+- **Locations with High Fequency Earthquakes:**
+- **Times where Earthquakes are Most Common:**
+- **Locations with High Depth Earthquakes:**
+- **Relation between Topological Data and Earthquakes:**
 
 ## Design Choices and Process
 
@@ -78,7 +97,7 @@ This project can be accessed publicly [HERE](https://rickslick3.github.io/earth-
 
 #### Casey Jackson:
 
-...
+Created earthquake grouping functionality. Created drawing and filtering by area on map. Synchronized map area filter, timeline brush filter, and heatmap filter to operate in sync with each other. Fixed a few minor bugs throughout the application.
 
 #### Ricky Roberts:
 
