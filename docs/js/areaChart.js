@@ -27,6 +27,13 @@ class AreaChart {
     initVis() {
         let vis = this;
 
+        if (localStorage.getItem('year') == '2025') {
+            vis.maxBrushWidth = 10000;
+        }
+        else {
+            vis.maxBrushWidth = 211;
+        }
+
         const containerWidth = vis.config.contextWidth + vis.config.margin.left + vis.config.margin.right;
         const containerHeight = vis.config.contextHeight + vis.config.margin.top + vis.config.margin.bottom;
 
@@ -206,11 +213,11 @@ class AreaChart {
             } catch (e) {
                 console.error("Error parsing stored brush selection:", e);
                 // Fallback: default brush spanning from Jan 1 to the end of the domain.
-                vis.brushSelection = [vis.xScale(new Date(`${currentYear}-01-01`)), vis.xScale.range()[1]];
+                vis.brushSelection = [vis.xScale.range()[0], vis.xScale.range()[1]];
             }
         } else {
             // If no stored selection, use a default range.
-            vis.brushSelection = [vis.xScale(new Date(`${currentYear}-01-01`)), vis.xScale.range()[1]];
+            vis.brushSelection = [vis.xScale.range()[0], vis.xScale.range()[1]];
         }
 
         // Apply the brush and move it to the default selection.
