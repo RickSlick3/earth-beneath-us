@@ -52,8 +52,6 @@ The map offers several interactive features and filtering options:
 
 # TO DO
 
-- 1 section on the visualization components: Explain each view of the data, the GUI, etc.  Explain how - you can interact with your application, and how the views update in response to these interactions. 
-
 - This time, include a section with your design sketches and design justifications.
 
 - 1 section on what your application enables you to discover: Present some findings you arrive at with your application. 
