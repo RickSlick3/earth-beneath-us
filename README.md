@@ -82,4 +82,4 @@ This project can be accessed publicly [HERE](https://rickslick3.github.io/earth-
 
 #### Ricky Roberts:
 
-...
+Created the area chart, created the brushing and time filtering, added infromation to th brush window. Created the heatmap and bins. Added the animation feature. Added year selector for data. Added the map selector for different map tiles. Added legend and buttons to switch color by data attributes. 
