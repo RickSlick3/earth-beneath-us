@@ -9,7 +9,7 @@
 
 Earthquakes are powerful natural phenomena that can cause devastating loss of life, property, and infrastructure. While public awareness is often focused on well-known fault lines like those in California or Japan, seismic activity also occurs in less-expected regions—such as the Midwest of the United States—highlighting the importance of comprehensive global monitoring and analysis.
 
-![entire app screenshot](/docs/documentation-files/entire-app.png)
+![entire app screenshot](/documentation-files/entire-app.png)
 
 This application is motivated by the need to make earthquake data more accessible, interpretable, and interactive for the general public. By visualizing seismic events over the past 10 years, the project seeks to: 
 
@@ -26,7 +26,7 @@ This earthquake visualization application enables users to explore and understan
 
 The data used for this application is from the [United States Geological Survey Earthquake Catalog](https://earthquake.usgs.gov/earthquakes/search/). The USGS monitors and reports on earthquakes, assesses earthquake impacts and hazards, and conducts targeted research on the causes and effects of earthquakes. The U.S. Geological Survey offers a data portal that allows users to query and download comprehensive earthquake data. For this project, we are focusing exclusively on earthquakes with a magnitude of 2.5 or higher.
 
-**Data sample:** [2025.csv](/docs/data/2025.csv)
+**Data sample:** [2025.csv](/data/2025.csv)
 
 ### Visualization Interaction
 
@@ -34,30 +34,52 @@ The map offers several interactive features and filtering options:
 
 1. **Area Selection:** By selecting the "Enter Selection Mode" button, the user can click and drag to cover an area on the map. The data will filter to only display earthquakes within the selcted area on the map. 
 
-![Filter by Area](/docs/documentation-files/area-selection.png)
+![Filter by Area](/documentation-files/area-selection.png)
 
 2. **Timeline Brushing:** By selecting the "Toggle Brushing" button, the user can see what dates the data is filtered by in the area chart. The user can select either edge to increase or decrease the timespan, or drag the brushing area to filter the displayed data by a different timespan entirely. 
 
-![Filter by Time](/docs/documentation-files/timeline-brushing.png)
+![Filter by Time](/documentation-files/timeline-brushing.png)
 
 3. **Filtering by Depth and Magnitude:** By selecting the "Toggle Heatmap" button, the user can see the distribution of the displayed earthquakes by magnitude and depth. The user can also select multiple heatmap bins to filter the displayed data by specific magnitudes or depths. 
 
-![Filter by Depth and Magnitude](/docs/documentation-files/heatmap-filter.png)
+![Filter by Depth and Magnitude](/documentation-files/heatmap-filter.png)
 
 4. **Animate Over Time:** By selecting the "Animate Days" button to show a day by day animation of the filtered points within the selected timespan in the area chart. 
 
-![Animate Over Time](/docs/documentation-files/animation.png)
+![Animate Over Time](/documentation-files/animation.png)
 
 **Tip:** To achieve unique results, try using multiple filters before animating the points. 
 
-# TO DO
+- TODO: 1 section on what your application enables you to discover: Present some findings you arrive at with your application. 
 
-- This time, include a section with your design sketches and design justifications.
+## Design Choices an Process
 
-- 1 section on what your application enables you to discover: Present some findings you arrive at with your application. 
+Below is a list of links to our design plans and digital sketches:
 
-- 1 section on your process- what libraries did you use?  How did you structure your code?  How can you access it and run it? 
+- [Design Plan Charts](/documentation-files/design-plan-charts.pdf)
+- [Design Plan 1](/documentation-files/design-plan-1.pdf)
+- [Design Plan 2](/documentation-files/design-plan-2.pdf)
 
-- Include a 2-3 minute demo video, showing your application in action.  The easiest way to record this is with a screen capture tool, which also captures audio- such as Quicktime.  Use a voiceover or video captions to explain your application.  Demo videos should be sufficient on their own, but can reference your documentation.  Include the name of the project, your name, the project components, and how your application works.  You can present it on your webpage or on youtube, but linked on your webpage. 
+### Designs
 
-- This time, document who on your team did which component of the project.  Ex.  If someone worked on the data, and on bar charts, list their effort on these components. 
+Our ideas were chosen based on the project requirements. As per the project requirements, the user needs to be able to filter earthquakes by time, magnitude, and depth. Our final decision was the combination of a timeline and a heatmap. The timeline enables the user to filter the displayed data by a specific timeframe. The heatmap enables the user to filter by magnitude, depth, or a specific intersection of these two attributes. We planned that these filters would be linked and for the user to be able to make specific filter combinations between the two visualizations. 
+
+With our initial desings, our plan was to make the map the focus of attention while also making the charts present while panning and zooming. The initial design was made with the intention for the map to be the main focus, while having the charts be ever-present for filtering. This idea was later changed to make the map the enitre screen, and for the charts to be overlayed with the option to display or hide them individually. We settled on this idea for our final design to allow the user to have maximum visibility of the map. When the charts are not displayed, the user can pan and zoom, watch the animations, and use the other functionality while the map is the full screen size.
+
+### Structure and Libraries
+
+We structured our code in multiple files to separate key aspects of our app. We have a separate file for our map, area chart, and heatmap. These files are linked using callbacks, functions that connect the instances of each key aspect in our main file. This allows applying filters or updating data using one visualization to change values in the others if applicable. This overall structure of our project allows code to be compartmentalized while also being able to link through a common function or file. 
+
+In this project, we used [leaflet](https://leafletjs.com/) for our map and map tiles, [D3.js](https://d3js.org/) for our area chart and heatmap, and [tz.js](https://github.com/photostructure/tz-lookup) and [moment.js](https://momentjs.com/timezone/) to get the timezone and local time of each earthquake. 
+
+This project can be accessed publicly [HERE](https://rickslick3.github.io/earth-beneath-us/).
+
+## Contributions
+
+#### Casey Jackson:
+
+...
+
+#### Ricky Roberts:
+
+...
