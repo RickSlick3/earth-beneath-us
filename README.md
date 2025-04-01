@@ -24,7 +24,7 @@ This earthquake visualization application enables users to explore and understan
 
 ### The Data
 
-The data used for this application is from the [United States Geological Survey Earthquake Catalog](https://earthquake.usgs.gov/earthquakes/search/). The USGS monitors and reports on earthquakes, assesses earthquake impacts and hazards, and conducts targeted research on the causes and effects of earthquakes. The U.S. Geological Survey offers a data portal that allows users to query and download comprehensive earthquake data. For this project, we are focusing exclusively on earthquakes with a magnitude of 2.5 or higher.
+The data used for this application is from the [United States Geological Survey Earthquake Catalog](https://earthquake.usgs.gov/earthquakes/search/). The USGS monitors and reports on earthquakes, assesses earthquake impacts and hazards, and conducts targeted research on the causes and effects of earthquakes. The U.S. Geological Survey offers a data portal that allows users to query and download comprehensive earthquake data. For this project, we are focusing exclusively on earthquakes with a magnitude of 2.5 or higher between the years 2015 and 2025.
 
 **Data sample:** [2025.csv](/data/2025.csv)
 
@@ -52,7 +52,7 @@ The map offers several interactive features and filtering options:
 
 - TODO: 1 section on what your application enables you to discover: Present some findings you arrive at with your application. 
 
-## Design Choices an Process
+## Design Choices and Process
 
 Below is a list of links to our design plans and digital sketches:
 
