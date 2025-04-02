@@ -20,7 +20,7 @@ This application is motivated by the need to make earthquake data more accessibl
 This earthquake visualization application enables users to explore and understand regional earthquake patterns, the global timeline of seismic activity, and the relationships between location, magnitude, and depth. 
 
 **Link to Application:** [rickslick3.github.io/earth-beneath-us/](https://rickslick3.github.io/earth-beneath-us/) <br/>
-**Link to Demonstration:** TODO
+**Link to Demonstration:** [Project 2 Demo Video](https://drive.google.com/file/d/1f_FE7lhhpkl1_YFgjMT1pDq0Cz8zy7l2/view?usp=sharing)
 
 ### The Data
 
