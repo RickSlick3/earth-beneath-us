@@ -66,10 +66,11 @@ The map offers several interactive features and filtering options:
 
 There are numerous findings that this application could enable users to discover. We will list some of them here:
 
-- **Locations with High Fequency Earthquakes:**
-- **Times where Earthquakes are Most Common:**
-- **Locations with High Depth Earthquakes:**
-- **Relation between Topological Data and Earthquakes:**
+- **Locations with High Fequency Earthquakes:** By looking at the map, the user can discover areas where earthquakes are common. Toggling earthquake grouping and hovering the points can also tell users where earthquakes are most common. For example, the user can observe via the large amount of lighter colored dots that there are a lot of small magnitude earthquakes in the Alaskan Peninsula.
+- **Times where Earthquakes are Most Common:** By observing the timeline brush, the user can see the times of the year when earthquakes appear at the highest frequency, and speculate if there is a reason for the peaking earthquakes at certain times of the year. For example, one might observe that in 2023 ans 2024, the earthquake frequency spiked in February and December. However, in 2022, earthquake frequency remained even, and in 2021, it spiked in March and August instead. Using this info, one might surmise that the time of year has no impact on the earthquake frequency.
+- **Locations with High Depth Earthquakes:** If the user were to switch the coloring of the dots to color by depth, one could see the locations where earthquakes appear at the lowest depth. One could also come to this conclusion through filtering earthquakes with the highest depth via the heatmap. For example, the user may notice a lot of dark blue dots in the Fiji area on the map. The user then decides to filter only the earthquakes with the highest depth and confirms that all are near Fiji.
+- **How Earthquakes Change in an Area Over the Course of a Year:** Using the map area select feature and the animation feature, the user can select an area on the map, then animate it over a time period to see how the earthquakes change in that area. For example, if I select Japan and animate over a few months, I observe that there are usually between 1-5 earthquakes in the countery per day, ranginf from around magnitude 4.0 to 6.0 on average.
+- **Relation between Topological Data and Earthquakes:** Finally, if I change the map to show topological data, I can observe a potential correlation between altitude level and earthquake frequency. Using this, I might draw the conclusion that elevation has little to no effect on earthquake frequency, as I see earthquakes occurring in both high and low elevation environments.
 
 ## Design Choices and Process
 
